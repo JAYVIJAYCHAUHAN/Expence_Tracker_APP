@@ -1,0 +1,24 @@
+ # Node modules
+node_modules/
+
+# Build output (generated during production build)
+dist/
+build/
+
+# Log files
+*.log
+npm-debug.log*
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Editor settings
+.vscode/
+.idea/
+
+# TypeScript cache (if using TypeScript)
+*.tsbuildinfo
+
+# NPM package-lock files (optional: some prefer to commit these)
+package-lock.json

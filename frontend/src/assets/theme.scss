@@ -1,0 +1,77 @@
+$primary: #3498db;
+$secondary: #2ecc71;
+$success: #28a745;
+$info: #17a2b8;
+$warning: #ffc107;
+$danger: #dc3545;
+$light: #f8f9fa;
+$dark: #343a40;
+
+$theme-colors: (
+  "primary": $primary,
+  "secondary": $secondary,
+  "success": $success,
+  "info": $info,
+  "warning": $warning,
+  "danger": $danger,
+  "light": $light,
+  "dark": $dark,
+);
+
+/* Global color classes */
+.color-primary {
+  color: #3498db !important; /* Custom Primary Color */
+}
+
+.color-secondary {
+  color: #2ecc71 !important; /* Custom Secondary Color */
+}
+
+.color-success {
+  color: #28a745 !important; /* Custom Success Color */
+}
+
+.color-danger {
+  color: #dc3545 !important; /* Custom Danger Color */
+}
+
+.color-info {
+  color: #17a2b8 !important; /* Custom Info Color */
+}
+
+.color-light {
+  color: #f8f9fa !important; /* Custom Light Color */
+}
+
+.color-dark {
+  color: #343a40 !important; /* Custom Dark Color */
+}
+
+/* Optional: For background colors */
+.bg-primary {
+  background-color: #3498db !important;
+}
+
+.bg-secondary {
+  background-color: #2ecc71 !important;
+}
+
+.bg-success {
+  background-color: #28a745 !important;
+}
+
+.bg-danger {
+  background-color: #dc3545 !important;
+}
+
+.bg-info {
+  background-color: #17a2b8 !important;
+}
+
+.bg-light {
+  background-color: #f8f9fa !important;
+}
+
+.bg-dark {
+  background-color: #343a40 !important;
+}
