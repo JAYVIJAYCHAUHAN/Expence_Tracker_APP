@@ -1,80 +1,77 @@
 <template>
-  <div class="nav-wrapper">
+  <div class="nav-wrapper" :class="{ 'nav-shadow': scrolled }">
     <div class="logo-header">
       <div class="logo">
-        <img src="@/assets/images/logo.jpeg" alt="Expense Tracker" />
-        <span class="tracker-title fs-2">Expense Tracker</span>
+        <img src="@/assets/images/logo.jpeg" alt="Expense Tracker" class="logo-image" />
+        <span class="tracker-title">Expense Tracker</span>
       </div>
     </div>
     <!-- Navigation Menu for Large Screens -->
     <div class="nav-items" v-if="!isSmallScreen">
-      <el-menu mode="horizontal" @select="handleSelect" :router="true">
-        <el-tooltip content="Home" placement="top">
-          <el-menu-item index="/" :route="{ name: 'Root' }" class="fw-bold">
-            <span class="bi bi-house fs-2"></span>
+      <el-menu mode="horizontal" @select="handleSelect" :router="true" class="transparent-menu">
+        <el-tooltip content="Home" placement="bottom" effect="light">
+          <el-menu-item index="/" :route="{ name: 'Root' }" class="nav-item">
+            <i class="bi bi-house-door-fill nav-icon"></i>
           </el-menu-item>
         </el-tooltip>
 
-        <el-tooltip content="Summery" placement="top">
-          <el-menu-item
-            index="/summery"
-            :route="{ name: 'Summery' }"
-            class="fw-bold"
-          >
-            <span class="bi bi-bar-chart-fill fs-2"></span>
+        <el-tooltip content="Summary" placement="bottom" effect="light">
+          <el-menu-item index="/summery" :route="{ name: 'Summery' }" class="nav-item">
+            <i class="bi bi-graph-up nav-icon"></i>
           </el-menu-item>
         </el-tooltip>
 
-        <el-tooltip content="Report" placement="top">
-          <el-menu-item
-            index="/report"
-            :route="{ name: 'Report' }"
-            class="fw-bold"
-          >
-            <span class="bi bi-file-pdf fs-2"></span>
+        <el-tooltip content="Report" placement="bottom" effect="light">
+          <el-menu-item index="/report" :route="{ name: 'Report' }" class="nav-item">
+            <i class="bi bi-file-earmark-text nav-icon"></i>
           </el-menu-item>
         </el-tooltip>
 
-        <el-tooltip content="Expance" placement="top">
-          <el-menu-item
-            index="/expence"
-            :route="{ name: 'Expance' }"
-            class="fw-bold"
-          >
-            <span class="bi bi-currency-rupee fs-2"></span>
+        <el-tooltip content="Expense" placement="bottom" effect="light">
+          <el-menu-item index="/expence" :route="{ name: 'Expance' }" class="nav-item">
+            <i class="bi bi-wallet2 nav-icon"></i>
           </el-menu-item>
         </el-tooltip>
-        <div class="nav-actions">
-          <el-button type="primary">Sign Up</el-button>
-          <el-button>Login</el-button>
-        </div>
       </el-menu>
+      <div class="nav-actions">
+        <UserMenu />
+      </div>
     </div>
+
     <!-- Sidebar for Small Screens -->
     <div class="sidebar" :class="{ active: isActive }" v-if="isSmallScreen">
-      <el-menu mode="vertical" @select="handleSelect" :router="true">
-        <el-menu-item index="/" :route="{ name: 'Root' }">
-          <span class="fs-5 fw-bold">Home</span>
+      <div class="sidebar-header">
+        <img src="@/assets/images/logo.jpeg" alt="Expense Tracker" class="sidebar-logo" />
+        <span class="tracker-title">Expense Tracker</span>
+      </div>
+      <el-menu mode="vertical" @select="handleSelect" :router="true" class="sidebar-menu">
+        <el-menu-item index="/" :route="{ name: 'Root' }" class="sidebar-item">
+          <i class="bi bi-house-door-fill nav-icon"></i>
+          <span>Home</span>
         </el-menu-item>
-        <el-menu-item index="/summery" :route="{ name: 'Summery' }">
-          <span class="fs-5 fw-bold"> Summery</span>
+        <el-menu-item index="/summery" :route="{ name: 'Summery' }" class="sidebar-item">
+          <i class="bi bi-graph-up nav-icon"></i>
+          <span>Summary</span>
         </el-menu-item>
-        <el-menu-item index="/report" :route="{ name: 'Report' }">
-          <span class="fs-5 fw-bold">Report</span>
+        <el-menu-item index="/report" :route="{ name: 'Report' }" class="sidebar-item">
+          <i class="bi bi-file-earmark-text nav-icon"></i>
+          <span>Report</span>
         </el-menu-item>
-        <el-menu-item index="/expence" :route="{ name: 'Expance' }">
-          <span class="fs-5 fw-bold">Expance</span>
+        <el-menu-item index="/expence" :route="{ name: 'Expance' }" class="sidebar-item">
+          <i class="bi bi-wallet2 nav-icon"></i>
+          <span>Expense</span>
         </el-menu-item>
-        <div class="action-button">
-          <router-link to="/signup">
-            <el-button type="primary">Sign Up</el-button>
-          </router-link>
-          <router-link to="/login">
-            <el-button>Login</el-button>
-          </router-link>
-        </div>
       </el-menu>
+      <div class="sidebar-actions">
+        <router-link to="/signup" class="w-100">
+          <el-button type="primary" class="auth-button w-100">Sign Up</el-button>
+        </router-link>
+        <router-link to="/login" class="w-100">
+          <el-button class="auth-button w-100">Login</el-button>
+        </router-link>
+      </div>
     </div>
+
     <!-- Hamburger Menu -->
     <div class="toggle" @click="toggleSidebar" v-if="isSmallScreen">
       <div class="line top" :class="{ active: isActive }"></div>
@@ -84,14 +81,19 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { onMounted, onUnmounted, ref } from "vue";
+import UserMenu from '@/components/UserMenu.vue';
 
 const isActive = ref(false);
 const isSmallScreen = ref(false);
+const scrolled = ref(false);
 
 const handleSelect = (key, keyPath) => {
   console.log(key, keyPath);
+  if (isSmallScreen.value) {
+    isActive.value = false;
+  }
 };
 
 const toggleSidebar = () => {
@@ -99,48 +101,53 @@ const toggleSidebar = () => {
 };
 
 const updateScreenSize = () => {
-  isSmallScreen.value = window.innerWidth <= 768;
+  isSmallScreen.value = window.innerWidth <= 576;
 };
-// Detect click outside to close the sidebar
+
+const handleScroll = () => {
+  scrolled.value = window.scrollY > 20;
+};
+
 const closeSidebar = (event) => {
   const sidebar = document.querySelector(".sidebar");
   const toggle = document.querySelector(".toggle");
-  if (!sidebar.contains(event.target) && !toggle.contains(event.target)) {
+  
+  if (sidebar && toggle && !sidebar.contains(event.target) && !toggle.contains(event.target)) {
     isActive.value = false;
   }
 };
 
-// Add event listener on mount
 onMounted(() => {
   document.addEventListener("click", closeSidebar);
-});
-
-// Remove event listener on unmount
-onUnmounted(() => {
-  document.removeEventListener("click", closeSidebar);
-});
-onMounted(() => {
+  window.addEventListener("scroll", handleScroll);
   updateScreenSize();
   window.addEventListener("resize", updateScreenSize);
 });
 
 onUnmounted(() => {
+  document.removeEventListener("click", closeSidebar);
+  window.removeEventListener("scroll", handleScroll);
   window.removeEventListener("resize", updateScreenSize);
 });
 </script>
 
 <style scoped>
-/* General styles */
 .nav-wrapper {
   width: 100%;
   position: fixed;
   top: 0;
   z-index: 100;
-  background-color: white;
+  background-color: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 10px 20px;
+  transition: all 0.3s ease;
+}
+
+.nav-shadow {
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
 }
 
 .logo-header {
@@ -148,87 +155,191 @@ onUnmounted(() => {
   align-items: center;
 }
 
-.logo img {
-  width: 50px;
-  height: 50px;
-  border-radius: 25px;
-  margin-right: 10px;
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
-span {
-  color: #336ad7;
-  font-size: 20px;
+.logo-image {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  transition: transform 0.3s ease;
+}
+
+.logo-image:hover {
+  transform: scale(1.1);
+}
+
+.tracker-title {
+  background-image: linear-gradient(135deg, #00c4cc, #7209b7);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-weight: bold;
+  font-size: 1.5rem;
 }
 
 .nav-items {
   display: flex;
-  align-items: end;
+  align-items: center;
+  gap: 10px;
+}
+
+.transparent-menu {
+  background-color: transparent !important;
+  border-bottom: none !important;
+  display: flex;
+  align-items: center;
+  height: 60px !important;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 50px !important;
+  width: 50px !important;
+  padding: 0 !important;
+  margin: 0 5px !important;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+.nav-item:hover {
+  background-color: rgba(0, 196, 204, 0.1);
+}
+
+.nav-icon {
+  font-size: 1.4rem;
+  color: #336ad7;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.nav-item:hover .nav-icon {
+  transform: translateY(-2px);
+  color: #00c4cc;
 }
 
 .nav-actions {
+  margin-left: auto;
   display: flex;
-  gap: 10px;
-  margin-left: 20px;
+  align-items: center;
+}
+
+.auth-button {
+  border-radius: 8px;
+  padding: 8px 20px;
+  transition: all 0.3s ease;
+}
+
+.signup-btn {
+  background: linear-gradient(135deg, #00c4cc, #7209b7);
+  border: none;
+}
+
+.signup-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 196, 204, 0.2);
+}
+
+.login-btn:hover {
+  transform: translateY(-2px);
+  border-color: #00c4cc;
+  color: #00c4cc;
 }
 
 .sidebar {
   position: fixed;
   top: 0;
-  right: -250px;
-  width: 250px;
-  height: 100%;
+  right: -300px;
+  width: 300px;
+  height: 100vh;
   background-color: white;
   transition: right 0.3s ease;
+  box-shadow: -2px 0 12px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
 }
 
 .sidebar.active {
   right: 0;
 }
 
-.action-button {
+.sidebar-header {
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid #eee;
+}
+
+.sidebar-logo {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+}
+
+.sidebar-menu {
+  flex: 1;
+  border: none;
+}
+
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px !important;
+  margin: 8px 0;
+}
+
+.sidebar-actions {
+  padding: 20px;
   display: flex;
   flex-direction: column;
-  justify-content: end;
-  justify-items: end;
-  gap: 15px;
-  margin: 20px;
+  gap: 12px;
+  border-top: 1px solid #eee;
 }
 
 .toggle {
-  position: absolute;
-  right: 20px;
-  top: 20px;
-  z-index: 999;
+  position: relative;
   width: 30px;
-  height: 20px;
+  height: 24px;
   cursor: pointer;
   display: none;
   flex-direction: column;
   justify-content: space-between;
-  align-items: center;
+  z-index: 1000;
 }
 
 .line {
-  width: 30px;
-  height: 4px;
-  background-color: #345eb2;
-  border-radius: 5px;
-  transition: transform 0.3s ease, opacity 0.3s ease;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(135deg, #00c4cc, #7209b7);
+  border-radius: 3px;
+  transition: all 0.3s ease;
 }
 
 .line.active.top {
-  transform: rotate(45deg) translate(5px, 5px);
+  transform: rotate(45deg) translate(6px, 6px);
 }
 
 .line.active.middle {
   opacity: 0;
+  transform: translateX(-20px);
 }
 
 .line.active.bottom {
-  transform: rotate(-45deg) translate(5px, -5px);
+  transform: rotate(-45deg) translate(6px, -6px);
 }
 
-@media only screen and (max-width: 768px) {
+@media only screen and (max-width: 576px) {
   .toggle {
     display: flex;
   }
@@ -236,12 +347,58 @@ span {
   .nav-items {
     display: none;
   }
+
+  .nav-wrapper {
+    padding: 10px 16px;
+  }
+
+  .tracker-title {
+    font-size: 1.2rem;
+  }
+
+  .logo-image {
+    width: 35px;
+    height: 35px;
+  }
 }
-.tracker-title {
-  background-image: linear-gradient(90deg, #00c4cc, #9556e8);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  font-weight: bold;
+
+@media only screen and (min-width: 577px) {
+  .toggle {
+    display: none;
+  }
+
+  .sidebar {
+    display: none;
+  }
+
+  .nav-items {
+    display: flex;
+  }
+
+  .nav-wrapper {
+    padding: 10px 24px;
+  }
+
+  .nav-actions {
+    margin-left: 30px;
+  }
+}
+
+@media only screen and (min-width: 992px) {
+  .nav-wrapper {
+    padding: 10px 40px;
+  }
+
+  .nav-item {
+    margin: 0 8px !important;
+  }
+
+  .nav-actions {
+    margin-left: 40px;
+  }
+}
+
+.w-100 {
+  width: 100%;
 }
 </style>

@@ -1,151 +1,371 @@
 <template>
   <div class="home-container">
-    <header class="hero-section text-center py-5 mb-4">
+    <!-- Hero Section -->
+    <section class="hero-section">
       <div class="hero-content">
-        <div class="d-flex justify-content-center gap-2">
-          <div class="h1 font-weight-bold">Welcome to Your</div>
-          <div class="h1 tracker-title">Expense Tracker.</div>
+        <h1 class="hero-title">
+          Smart Money Management
+          <span class="gradient-text">Made Simple</span>
+        </h1>
+        <p class="hero-subtitle">
+          Track expenses, analyze spending patterns, and achieve your financial goals with our intuitive expense tracking solution.
+        </p>
+        <div class="hero-cta">
+          <el-button type="primary" size="large" class="get-started-btn" @click="router.push('/signup')">
+            Get Started Free
+          </el-button>
+          <el-button size="large" class="demo-btn" @click="router.push('/demo')">
+            View Demo
+          </el-button>
         </div>
-        <p>Keep track of your finances effortlessly.</p>
-      </div>
-    </header>
-    <el-divider />
-    <section class="image-card-section d-grid gap-4 p-4">
-      <div class="card">
-        <div class="card-body">
-          <div class="image-container">
-            <img
-              src="@/assets/images/report.jpeg"
-              alt="Spending Image"
-              class="card-image"
-            />
+        <div class="hero-stats">
+          <div class="stat-item">
+            <h3>10K+</h3>
+            <p>Active Users</p>
           </div>
-          <div class="card-content">
-            <h3 class="card-title">Track Your Spending</h3>
-            <router-link to="/add-expense"> </router-link>
+          <div class="stat-item">
+            <h3>1M+</h3>
+            <p>Expenses Tracked</p>
           </div>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-body">
-          <div class="image-container">
-            <img
-              src="@/assets/images/spending.jpeg"
-              alt="Spending Overview"
-              class="card-image"
-            />
-          </div>
-          <div class="card-content">
-            <h3 class="card-title">Spending Overview</h3>
-            <router-link to="/summary"> </router-link>
+          <div class="stat-item">
+            <h3>98%</h3>
+            <p>Satisfaction Rate</p>
           </div>
         </div>
       </div>
-      <div class="card">
-        <div class="card-body">
-          <div class="image-container">
-            <img
-              src="@/assets/images/monthly2.jpeg"
-              alt="Manage Budgets"
-              class="card-image"
-            />
-          </div>
-          <div class="card-content">
-            <h3 class="card-title">Manage Budgets</h3>
-            <router-link to="/budget"> </router-link>
-          </div>
-        </div>
+      <div class="hero-image">
+        <img src="@/assets/images/expencetracker.jpeg" alt="Expense Tracker Dashboard" />
       </div>
-      <div class="card">
-        <div class="card-body">
-          <div class="image-container">
-            <img
-              src="@/assets/images/monthly3.jpeg"
-              alt="Monthly Report"
-              class="card-image"
-            />
+    </section>
+
+    <!-- Features Section -->
+    <section class="features-section">
+      <h2 class="section-title">Why Choose Our Expense Tracker?</h2>
+      <div class="features-grid">
+        <div class="feature-card" v-for="(feature, index) in features" :key="index">
+          <div class="feature-icon">
+            <i :class="feature.icon"></i>
           </div>
-          <div class="card-content">
-            <h3 class="card-title">Monthly Report</h3>
-            <router-link to="/monthly-report"> </router-link>
-          </div>
+          <h3>{{ feature.title }}</h3>
+          <p>{{ feature.description }}</p>
         </div>
       </div>
     </section>
-    <el-divider />
-    <UserRegistration />
-    <el-divider />
 
-    <!-- Footer Section -->
-    <footer class="footer bg-dark text-white text-center py-3">
-      <p>&copy; 2025 Expense Tracker. All Rights Reserved.</p>
-    </footer>
+    <!-- How It Works -->
+    <section class="how-it-works">
+      <h2 class="section-title">How It Works</h2>
+      <div class="steps-container">
+        <div class="step" v-for="(step, index) in steps" :key="index">
+          <div class="step-number">{{ index + 1 }}</div>
+          <h3>{{ step.title }}</h3>
+          <p>{{ step.description }}</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Call to Action -->
+    <section class="cta-section">
+      <div class="cta-content">
+        <h2>Ready to Take Control of Your Finances?</h2>
+        <p>Join thousands of users who have transformed their financial habits with our expense tracker.</p>
+        <el-button type="primary" size="large" class="get-started-btn" @click="router.push('/signup')">
+          Start Tracking Now
+        </el-button>
+      </div>
+    </section>
   </div>
 </template>
 
 <script setup lang="ts">
 import { useRouter } from "vue-router";
-import UserRegistration from "@/components/UserRegister.vue";
+
 const router = useRouter();
-const navigateToAddExpense = () => {
-  router.push("/add-expense");
-};
+
+const features = [
+  {
+    icon: "bi bi-graph-up",
+    title: "Smart Analytics",
+    description: "Get detailed insights into your spending patterns with interactive charts and reports."
+  },
+  {
+    icon: "bi bi-shield-check",
+    title: "Secure & Private",
+    description: "Your financial data is protected with bank-level security and encryption."
+  },
+  {
+    icon: "bi bi-lightning",
+    title: "Real-time Tracking",
+    description: "Record and categorize expenses instantly, anywhere and anytime."
+  },
+  {
+    icon: "bi bi-bell",
+    title: "Smart Alerts",
+    description: "Set budgets and receive notifications when you're approaching your limits."
+  },
+  {
+    icon: "bi bi-phone",
+    title: "Mobile Friendly",
+    description: "Access your expenses on any device with our responsive design."
+  },
+  {
+    icon: "bi bi-cloud-arrow-up",
+    title: "Cloud Sync",
+    description: "Your data is automatically synced across all your devices."
+  }
+];
+
+const steps = [
+  {
+    title: 'Create an Account',
+    description: 'Sign up in seconds with just your email address.'
+  },
+  {
+    title: 'Add Your Expenses',
+    description: 'Easily record your daily expenses and categorize them.'
+  },
+  {
+    title: 'Track & Analyze',
+    description: 'View detailed reports and insights about your spending habits.'
+  }
+];
 </script>
 
 <style scoped>
 .home-container {
-  font-family: Arial, sans-serif;
+  max-width: 100%;
+  overflow-x: hidden;
 }
-.tracker-title {
-  background-image: linear-gradient(90deg, #00c4cc, #9556e8);
+
+.hero-section {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  padding: 80px 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  align-items: center;
+}
+
+.hero-title {
+  font-size: 3.5rem;
+  line-height: 1.2;
+  margin-bottom: 20px;
+}
+
+.gradient-text {
+  background: linear-gradient(135deg, #00c4cc, #7209b7);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+  display: block;
 }
 
-.image-card-section {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+.hero-subtitle {
+  font-size: 1.25rem;
+  color: #666;
+  margin-bottom: 30px;
+  line-height: 1.6;
+}
+
+.hero-cta {
+  display: flex;
   gap: 20px;
-  justify-content: center;
+  margin-bottom: 40px;
 }
 
-.card {
-  background-color: #ffffff;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  cursor: pointer;
-  height: 320px;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-.card:hover {
-  transform: translateY(-10px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
-}
-.card-body {
-  padding: 15px;
+.get-started-btn {
+  background: linear-gradient(135deg, #00c4cc, #7209b7);
+  border: none;
+  padding: 12px 32px;
+  font-weight: 600;
 }
 
-.image-container {
+.demo-btn {
+  border: 2px solid #00c4cc;
+  color: #00c4cc;
+}
+
+.hero-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 30px;
+  margin-top: 40px;
+}
+
+.stat-item {
+  text-align: center;
+}
+
+.stat-item h3 {
+  font-size: 2rem;
+  color: #00c4cc;
+  margin-bottom: 5px;
+}
+
+.stat-item p {
+  color: #666;
+}
+
+.hero-image {
   position: relative;
-  height: 210px;
+  border-radius: 20px;
   overflow: hidden;
-  border-radius: 10px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
 }
 
-.card-image {
+.hero-image img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  border-radius: 20px;
+  transition: transform 0.3s ease;
 }
 
-.card-content {
+.hero-image:hover img {
+  transform: scale(1.02);
+}
+
+.features-section {
+  padding: 80px 20px;
+  background: linear-gradient(to bottom, #f8f9fa, #ffffff);
+}
+
+.section-title {
   text-align: center;
-  margin-top: 30px;
+  font-size: 2.5rem;
+  margin-bottom: 60px;
+  color: #333;
 }
 
-.card-title {
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 30px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.feature-card {
+  background: white;
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease;
+}
+
+.feature-card:hover {
+  transform: translateY(-10px);
+}
+
+.feature-icon {
+  font-size: 2rem;
+  color: #00c4cc;
+  margin-bottom: 20px;
+}
+
+.feature-card h3 {
+  font-size: 1.5rem;
+  margin-bottom: 15px;
+  color: #333;
+}
+
+.feature-card p {
+  color: #666;
+  line-height: 1.6;
+}
+
+.how-it-works {
+  padding: 80px 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.steps-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 30px;
+  margin-top: 40px;
+}
+
+.step {
+  text-align: center;
+  padding: 30px;
+}
+
+.step-number {
+  width: 50px;
+  height: 50px;
+  background: linear-gradient(135deg, #00c4cc, #7209b7);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  margin: 0 auto 20px;
+}
+
+.cta-section {
+  background: linear-gradient(135deg, #00c4cc20, #7209b720);
+  padding: 80px 20px;
+  text-align: center;
+  margin-top: 40px;
+}
+
+.cta-content {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.cta-content h2 {
+  font-size: 2.5rem;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.cta-content p {
   font-size: 1.25rem;
-  font-weight: bold;
+  color: #666;
+  margin-bottom: 30px;
+}
+
+@media (max-width: 992px) {
+  .hero-section {
+    grid-template-columns: 1fr;
+    text-align: center;
+    padding: 40px 20px;
+  }
+
+  .hero-cta {
+    justify-content: center;
+  }
+
+  .hero-stats {
+    justify-content: center;
+  }
+
+  .hero-image {
+    order: -1;
+  }
+
+  .steps-container {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .hero-title {
+    font-size: 2.5rem;
+  }
+
+  .features-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .stat-item h3 {
+    font-size: 1.5rem;
+  }
 }
 </style>
+
