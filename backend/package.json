@@ -6,7 +6,11 @@
     "start": "node dist/index.js",
     "dev": "nodemon src/index.ts",
     "build": "tsc",
-    "watch": "tsc -w"
+    "watch": "tsc -w",
+    "setup-demo": "ts-node src/scripts/setupDemo.ts",
+    "reset-demo": "ts-node src/scripts/resetDemoUser.ts",
+    "setup-demo-user": "ts-node src/scripts/setupDemoUser.ts",
+    "setup-demo-data": "ts-node src/scripts/setupDemoData.ts"
   },
   "keywords": [],
   "author": "",
