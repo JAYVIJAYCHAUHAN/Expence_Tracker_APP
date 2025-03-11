@@ -58,6 +58,15 @@ const routes = [
     path: "/login",
     name: "Login",
     component: Login,
+  },
+  {
+    path: '/subscription',
+    name: 'Subscription',
+    component: () => import('@/Views/Subscription.vue'),
+    meta: {
+      requiresAuth: true,
+      title: 'Subscription Plans'
+    }
   }
 ];
 

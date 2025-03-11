@@ -22,6 +22,12 @@
             <i class="fas fa-chart-line"></i> Summary
           </router-link>
         </li>
+        <li class="nav-item">
+          <router-link to="/subscription" class="nav-link" v-if="isAuthenticated">
+            <i class="bi bi-star"></i>
+            <span>Subscription</span>
+          </router-link>
+        </li>
       </ul>
     </div>
     <button class="toggle-btn" @click="toggleSidebar">
@@ -47,6 +53,12 @@
             <li class="nav-item">
               <router-link to="/summary" class="nav-link">
                 <i class="fas fa-chart-line"></i> Summary
+              </router-link>
+            </li>
+            <li class="nav-item">
+              <router-link to="/subscription" class="nav-link" v-if="isAuthenticated">
+                <i class="bi bi-star"></i>
+                <span>Subscription</span>
               </router-link>
             </li>
           </ul>

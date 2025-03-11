@@ -11,20 +11,20 @@
           Track expenses, analyze spending patterns, and achieve your financial goals with our intuitive expense tracking solution.
         </p>
         <div class="hero-cta">
-          <el-button type="primary" size="large" class="get-started-btn" @click="router.push('/signup')">
+          <el-button type="primary" size="large" class="get-started-btn" @click="router.push('/signup')" v-if="!isAuthenticated">
             Get Started Free
           </el-button>
-          <el-button size="large" class="demo-btn" @click="router.push('/demo')">
-            View Demo
+          <el-button size="large" class="demo-btn" @click="viewDemo">
+            {{ isAuthenticated ? 'View Dashboard' : 'Try Demo' }}
           </el-button>
         </div>
         <div class="hero-stats">
           <div class="stat-item">
-            <h3>10K+</h3>
+            <h3>{{ totalUsers }}+</h3>
             <p>Active Users</p>
           </div>
           <div class="stat-item">
-            <h3>1M+</h3>
+            <h3>{{ formatNumber(totalExpenses) }}+</h3>
             <p>Expenses Tracked</p>
           </div>
           <div class="stat-item">
@@ -65,22 +65,111 @@
     </section>
 
     <!-- Call to Action -->
-    <section class="cta-section">
+    <section class="cta-section" v-if="!isAuthenticated">
       <div class="cta-content">
         <h2>Ready to Take Control of Your Finances?</h2>
-        <p>Join thousands of users who have transformed their financial habits with our expense tracker.</p>
+        <p>Join {{ totalUsers }}+ users who have transformed their financial habits with our expense tracker.</p>
         <el-button type="primary" size="large" class="get-started-btn" @click="router.push('/signup')">
           Start Tracking Now
         </el-button>
       </div>
     </section>
+
+    <!-- Demo Modal -->
+    <el-dialog
+      v-model="showDemoModal"
+      title="Try Demo Account"
+      width="400px"
+    >
+      <div class="demo-content">
+        <p>Experience our expense tracker with a demo account:</p>
+        <div class="demo-credentials">
+          <p><strong>Email:</strong> demo@example.com</p>
+          <p><strong>Password:</strong> demo123</p>
+        </div>
+        <p class="demo-note">Note: Demo account data resets every 24 hours.</p>
+      </div>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button @click="showDemoModal = false">Cancel</el-button>
+          <el-button type="primary" @click="loginWithDemo">
+            Try Demo
+          </el-button>
+        </div>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script setup lang="ts">
+import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
+import axios from 'axios';
+import { ElMessage } from 'element-plus';
 
 const router = useRouter();
+const showDemoModal = ref(false);
+const totalUsers = ref(0);
+const totalExpenses = ref(0);
+const isAuthenticated = ref(false);
+
+const API_URL = 'http://localhost:5000/api';
+
+// Fetch stats
+const fetchStats = async () => {
+  try {
+    const response = await axios.get(`${API_URL}/stats`);
+    totalUsers.value = response.data.userCount + 100; // Add 100 to actual user count
+    totalExpenses.value = response.data.expenseCount || 10000;
+  } catch (error) {
+    // Fallback values if API fails
+    totalUsers.value = 1100;
+    totalExpenses.value = 10000;
+  }
+};
+
+// Format large numbers
+const formatNumber = (num: number) => {
+  if (num >= 1000000) {
+    return (num / 1000000).toFixed(1) + 'M';
+  }
+  if (num >= 1000) {
+    return (num / 1000).toFixed(1) + 'K';
+  }
+  return num.toString();
+};
+
+// Check authentication
+const checkAuth = () => {
+  const token = localStorage.getItem('token');
+  isAuthenticated.value = !!token;
+};
+
+// View demo
+const viewDemo = () => {
+  if (isAuthenticated.value) {
+    router.push('/dashboard');
+  } else {
+    showDemoModal.value = true;
+  }
+};
+
+// Login with demo account
+const loginWithDemo = async () => {
+  try {
+    const response = await axios.post(`${API_URL}/users/login`, {
+      email: 'demo@example.com',
+      password: 'demo123'
+    });
+
+    localStorage.setItem('token', response.data.token);
+    showDemoModal.value = false;
+    ElMessage.success('Logged in with demo account');
+    router.push('/dashboard');
+  } catch (error) {
+    ElMessage.error('Failed to login with demo account. Please ensure the demo account exists.');
+  }
+};
 
 const features = [
   {
@@ -129,6 +218,11 @@ const steps = [
     description: 'View detailed reports and insights about your spending habits.'
   }
 ];
+
+onMounted(() => {
+  fetchStats();
+  checkAuth();
+});
 </script>
 
 <style scoped>
@@ -328,6 +422,30 @@ const steps = [
   font-size: 1.25rem;
   color: #666;
   margin-bottom: 30px;
+}
+
+.demo-content {
+  text-align: center;
+  padding: 20px;
+}
+
+.demo-credentials {
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 10px;
+  margin: 20px 0;
+}
+
+.demo-note {
+  color: #666;
+  font-size: 0.9rem;
+  margin-top: 15px;
+}
+
+.dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 16px;
 }
 
 @media (max-width: 992px) {
