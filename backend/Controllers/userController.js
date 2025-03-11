@@ -1,4 +1,5 @@
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 const User = require("../Models/User");
 
 exports.signup = async (req, res) => {
@@ -41,35 +42,46 @@ exports.signup = async (req, res) => {
   }
 };
 
-exports.login=async(req,res)=>{
+exports.login = async (req, res) => {
   const { email, password } = req.body;
   console.log(req.body);
-  if(!email || !password){
-    return res.status(400).json({message:"Please fill all feilds"});
+  
+  if (!email || !password) {
+    return res.status(400).json({ message: "Please fill all fields" });
   }
-   try{
-    const user = await User.findOne({email});
-    console.log("fined user",user)
-    if(!user){
-      return res.status(400).json({message:"User does not exists"});
+  
+  try {
+    const user = await User.findOne({ email });
+    console.log("found user", user);
+    
+    if (!user) {
+      return res.status(400).json({ message: "User does not exist" });
     }
-    // const isMatch = await bcrypt.compare(password,user.password);
-    console.log("Stored Password:", user.password);
-    if(password!==user.password){
-      return res.status(400).json({message:"Invalid Credentials"});
-    }
-    res.status(200).json({
-      message:"Login successful",
-      user:{id:user._id,
-        email:user.email,
-        userName:user.userName,
-      },
-    })
-    }catch(error){
-       console.log(error);
-      return res.status(500).json({message:"server error"});
-        
+    
+    // Compare password
+    if (password !== user.password) {
+      return res.status(400).json({ message: "Invalid Credentials" });
     }
 
-   }
+    // Generate JWT token
+    const token = jwt.sign(
+      { userId: user._id },
+      process.env.JWT_SECRET || 'your-secret-key',
+      { expiresIn: '24h' }
+    );
+
+    res.status(200).json({
+      message: "Login successful",
+      user: {
+        id: user._id,
+        email: user.email,
+        userName: user.userName,
+      },
+      token
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "Server error" });
+  }
+};
   
