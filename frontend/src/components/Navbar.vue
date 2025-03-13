@@ -74,6 +74,8 @@
 import { ref } from "vue";
 
 const isSidebarExpanded = ref(false);
+//todo: add isAuthenticated
+const isAuthenticated = ref(false);
 
 const toggleSidebar = () => {
   isSidebarExpanded.value = !isSidebarExpanded.value;

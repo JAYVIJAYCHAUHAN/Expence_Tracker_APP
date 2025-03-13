@@ -11,16 +11,19 @@
           </p>
         </div>
         <div class="social-links">
-          <a href="#" class="social-link">
+          <a href="https://www.facebook.com/profile.php?id=100074616776179" class="social-link">
             <i class="bi bi-facebook"></i>
           </a>
-          <a href="#" class="social-link">
+          <a href="https://x.com/jvchauhan8874" class="social-link">
             <i class="bi bi-twitter-x"></i>
           </a>
-          <a href="#" class="social-link">
+          <a href="https://www.linkedin.com/in/jayvijay-chauhan" class="social-link">
             <i class="bi bi-linkedin"></i>
           </a>
-          <a href="#" class="social-link">
+          <a href="https://github.com/JAYVIJAYCHAUHAN" class="social-link">
+            <i class="bi bi-github"></i>
+          </a>
+          <a href="https://shorturl.at/ftY08" class="social-link">
             <i class="bi bi-instagram"></i>
           </a>
         </div>
