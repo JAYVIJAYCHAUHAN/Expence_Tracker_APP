@@ -13,7 +13,7 @@
         <el-button class="user-menu-btn">
           <i class="bi bi-person-circle me-2"></i>
           {{ userName }}
-          <i class="bi bi-chevron-down"></i>
+          <i :class="`bi bi-chevron-${chevron ? 'up' : 'down'} ms-1 fs-6`" @click="toggleChevron"></i>
         </el-button>
         <template #dropdown>
           <el-dropdown-menu>
@@ -47,7 +47,7 @@ interface UserData {
 const router = useRouter();
 const isAuthenticated = ref(!!localStorage.getItem('token'));
 const userData = ref<UserData | null>(null);
-
+const chevron = ref(false); 
 const userName = computed(() => {
   if (!userData.value) return 'User';
   return userData.value.userName || 'User';
@@ -102,6 +102,10 @@ onUnmounted(() => {
 watch(() => router.currentRoute.value.path, () => {
   loadUserData();
 });
+
+function toggleChevron() {
+  chevron.value = !chevron.value;
+}
 </script>
 
 <style scoped>

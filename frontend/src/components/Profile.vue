@@ -28,7 +28,7 @@
           :on-change="handleAvatarChange"
         >
           <el-button type="primary" class="upload-btn">
-            <i class="bi bi-camera"></i> Change Photo
+            <i class="bi bi-camera me-2"></i> Change Photo
           </el-button>
         </el-upload>
       </div>
@@ -81,7 +81,7 @@
         <el-input 
           v-model="formData.bio" 
           type="textarea" 
-          :rows="4"
+          :rows="3"
           placeholder="Tell us about yourself"
         />
       </el-form-item>
@@ -164,6 +164,8 @@ const submitForm = async () => {
     if (valid) {
       loading.value = true;
       try {
+
+        
         // Here you would typically make an API call to update the profile
         // For now, we'll just update localStorage
         localStorage.setItem('user', JSON.stringify(formData.value));
