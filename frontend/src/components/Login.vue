@@ -69,6 +69,7 @@
 </template>
 
 <script setup lang="ts">
+// todo use setup  and emitprops and emit
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
