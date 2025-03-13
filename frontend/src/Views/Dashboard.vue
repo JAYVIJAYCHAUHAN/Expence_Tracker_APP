@@ -178,7 +178,7 @@
           <h3>Recent Transactions</h3>
           <router-link to="/expence">
             <el-button type="primary" plain size="small">
-              <i class="bi bi-plus-circle"></i> Add Expense
+              <i class="bi bi-plus-circle me-2"></i> Add Expense
             </el-button>
           </router-link>
         </div>

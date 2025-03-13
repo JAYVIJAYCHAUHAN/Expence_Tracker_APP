@@ -11,7 +11,7 @@
     <template v-else>
       <el-dropdown trigger="click" @command="handleCommand">
         <el-button class="user-menu-btn">
-          <i class="bi bi-person-circle"></i>
+          <i class="bi bi-person-circle me-2"></i>
           {{ userName }}
           <i class="bi bi-chevron-down"></i>
         </el-button>

@@ -21,7 +21,7 @@
         </el-col>
         <el-col :span="12" class="text-right">
           <el-button type="primary" @click="generateReport">
-            <i class="bi bi-download"></i> Export Report
+            <i class="bi bi-download me-2"></i> Export Report
           </el-button>
         </el-col>
       </el-row>

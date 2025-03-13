@@ -99,7 +99,7 @@
             type="primary" 
             native-type="submit" 
             :loading="isSubmitting"
-            style="width: 100%"
+            style="width: 20%"
           >
             {{ isEditing ? 'Update Expense' : 'Add Expense' }}
           </el-button>
@@ -176,6 +176,7 @@
                 type="primary"
                 @click="editExpense(row)"
                 :icon="Edit"
+                 class="mb-2"
               >
                 Edit
               </el-button>
@@ -209,10 +210,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
-import { ElMessage, ElMessageBox, FormInstance } from 'element-plus';
+import router from '@/router';
 import { Delete, Edit } from '@element-plus/icons-vue';
 import axios from 'axios';
+import { ElMessage, ElMessageBox, FormInstance } from 'element-plus';
+import { computed, onMounted, ref } from 'vue';
 
 const API_URL = 'http://localhost:5000/api';
 
