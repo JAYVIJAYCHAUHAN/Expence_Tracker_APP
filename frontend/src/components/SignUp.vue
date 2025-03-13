@@ -67,7 +67,9 @@
             type="primary" 
             @click="openLoginModal"
             class="login-btn"
+            style="margin-bottom: 5px;"
           >
+            
             Log in
           </el-button>
         </div>
