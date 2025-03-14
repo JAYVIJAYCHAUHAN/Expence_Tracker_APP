@@ -2,12 +2,12 @@ import { createRouter, createWebHistory } from "vue-router";
 import Home from "@/Views/Home.vue";
 import Summery from "@/Views/Summery.vue";
 import Report from "@/Views/Report.vue";
-import Expence from "@/Views/Expence.vue";
 import AppLayout from "@/Views/layouts/AppLayout.vue";
 import Login from '@/components/Login.vue';
 import SignUp from '@/components/SignUp.vue';
 import Dashboard from '@/Views/Dashboard.vue';
 import Profile from '@/components/Profile.vue';
+import Expence from "@/Views/Expence.vue";
 
 const routes = [
   {
@@ -16,7 +16,7 @@ const routes = [
     component: AppLayout,
     children: [
       {
-        path: "",
+        path: "/",
         name: "Home",
         component: Home,
       },

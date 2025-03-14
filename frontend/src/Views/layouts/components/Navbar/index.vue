@@ -10,7 +10,7 @@
     <div class="nav-items" v-if="!isSmallScreen">
       <el-menu mode="horizontal" @select="handleSelect" :router="true" class="transparent-menu">
         <el-tooltip content="Home" placement="bottom" effect="light">
-          <el-menu-item index="/" :route="{ name: 'Root' }" class="nav-item">
+          <el-menu-item index="/" :route="{ name: 'Home' }" class="nav-item">
             <i class="bi bi-house-door-fill nav-icon"></i>
           </el-menu-item>
         </el-tooltip>
@@ -28,7 +28,7 @@
         </el-tooltip>
 
         <el-tooltip content="Expense" placement="bottom" effect="light">
-          <el-menu-item index="/expence" :route="{ name: 'Expance' }" class="nav-item">
+          <el-menu-item index="/expence" :route="{ name: 'Expence' }" class="nav-item">
             <i class="bi bi-wallet2 nav-icon"></i>
           </el-menu-item>
         </el-tooltip>
@@ -45,7 +45,7 @@
         <span class="tracker-title">Expense Tracker</span>
       </div>
       <el-menu mode="vertical" @select="handleSelect" :router="true" class="sidebar-menu">
-        <el-menu-item index="/" :route="{ name: 'Root' }" class="sidebar-item">
+        <el-menu-item index="/" :route="{ name: 'Home' }" class="sidebar-item">
           <i class="bi bi-house-door-fill nav-icon"></i>
           <span>Home</span>
         </el-menu-item>
@@ -57,7 +57,7 @@
           <i class="bi bi-file-earmark-text nav-icon"></i>
           <span>Report</span>
         </el-menu-item>
-        <el-menu-item index="/expence" :route="{ name: 'Expance' }" class="sidebar-item">
+        <el-menu-item index="/expence" :route="{ name: 'Expence' }" class="sidebar-item">
           <i class="bi bi-wallet2 nav-icon"></i>
           <span>Expense</span>
         </el-menu-item>

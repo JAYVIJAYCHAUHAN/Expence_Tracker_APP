@@ -310,8 +310,8 @@ const fetchExpenses = async () => {
     totalExpenses.value = response.data.length;
   } catch (error: any) {
     if (error.response?.status === 401) {
-      ElMessage.error('Please login to manage expenses');
-      router.push('/login');
+      ElMessage.error('Please signup to manage expenses');
+      router.push('/signup');
     } else {
       ElMessage.error('Failed to fetch expenses');
       console.error('Error fetching expenses:', error);
