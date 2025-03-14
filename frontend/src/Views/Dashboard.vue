@@ -9,10 +9,10 @@
     <el-card class="filter-card">
       <div class="date-filter">
         <el-radio-group v-model="dateRange" @change="handleDateRangeChange">
-          <el-radio-button label="week">This Week</el-radio-button>
-          <el-radio-button label="month">This Month</el-radio-button>
-          <el-radio-button label="year">This Year</el-radio-button>
-          <el-radio-button label="custom">Custom</el-radio-button>
+          <el-radio-button label="week" class="me-2">This Week</el-radio-button>
+          <el-radio-button label="month" class="me-2">This Month</el-radio-button>
+          <el-radio-button label="year" class="me-2">This Year</el-radio-button>
+          <el-radio-button label="custom" class="me-2">Custom</el-radio-button>
         </el-radio-group>
         
         <el-date-picker
@@ -258,7 +258,7 @@ const customDateRange = ref<[Date, Date] | null>(null);
 const trendTimeframe = ref('daily');
 const expenses = ref<Expense[]>([]);
 const autoRefresh = ref(true);
-const refreshInterval = ref(30000); // 30 seconds
+const refreshInterval = ref(300000); // 5 minutes
 
 // Date handling
 const getDateRange = () => {

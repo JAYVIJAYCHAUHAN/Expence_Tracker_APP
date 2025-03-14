@@ -99,7 +99,7 @@
             type="primary" 
             native-type="submit" 
             :loading="isSubmitting"
-            style="width: 20%"
+            
           >
             {{ isEditing ? 'Update Expense' : 'Add Expense' }}
           </el-button>
@@ -213,9 +213,10 @@
 import router from '@/router';
 import { Delete, Edit } from '@element-plus/icons-vue';
 import axios from 'axios';
-import { ElMessage, ElMessageBox, FormInstance } from 'element-plus';
+import { ElMessage, ElMessageBox,  } from 'element-plus';
 import { computed, onMounted, ref } from 'vue';
-
+import type { FormInstance } from 'element-plus';
+import type { Expense } from '@/type/types';
 const API_URL = 'http://localhost:5000/api';
 
 // Form data
@@ -268,8 +269,9 @@ const formRules = {
   ]
 };
 
+
 // Table data
-const expenses = ref([]);
+const expenses = ref<Expense[]>([]);
 const searchQuery = ref('');
 const filterCategory = ref('');
 const currentPage = ref(1);

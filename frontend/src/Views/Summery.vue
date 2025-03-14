@@ -125,6 +125,7 @@ import { ref, computed, onMounted, watch } from 'vue';
 import { ElMessage } from 'element-plus';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
+import type { Expense } from '@/type/types';
 
 const router = useRouter();
 const API_URL = 'http://localhost:5000/api';
@@ -132,7 +133,7 @@ const API_URL = 'http://localhost:5000/api';
 // State
 const selectedMonth = ref(new Date());
 const monthlyBudget = ref(50000); // This should be fetched from user settings
-const expenses = ref([]);
+const expenses = ref<Expense[]>([]);
 const isLoading = ref(false);
 
 // Computed values

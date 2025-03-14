@@ -134,6 +134,7 @@ import { useRouter } from 'vue-router';
 import LineChart from '@/components/charts/LineChart.vue';
 import PieChart from '@/components/charts/PieChart.vue';
 import axios from 'axios';
+import type { CategoryData, Expense, TrendData } from '@/type/types';
 
 const router = useRouter();
 const API_URL = 'http://localhost:5000/api';
@@ -170,19 +171,19 @@ const dateShortcuts = [
 ];
 
 // State
-const dateRange = ref([]);
-const trendTimeframe = ref('monthly');
+const dateRange = ref<Date[]>([]);
+const trendTimeframe = ref('weekly');
 const totalExpenses = ref(0);
 const expenseTrend = ref(0);
 const averageDaily = ref(0);
 const targetDaily = ref(1000); // This could be fetched from user settings
 const topCategory = ref({ name: '', amount: 0 });
-const expenses = ref([]);
+const expenses = ref<Expense[]>([]);
 
 // Chart data
-const trendData = ref([]);
-const categoryData = ref([]);
-const recentTransactions = ref([]);
+const trendData = ref<TrendData[]>([]);
+const categoryData = ref<CategoryData[]>([]);
+const recentTransactions = ref<Expense[]>([]);
 
 // Fetch expenses for the selected date range
 const fetchExpenses = async () => {
