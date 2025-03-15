@@ -24,3 +24,4 @@ package-lock.json
 
 #adding the .env file to ignore
 .env
+.env.production
