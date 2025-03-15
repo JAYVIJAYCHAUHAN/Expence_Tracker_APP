@@ -46,4 +46,4 @@ jobs:
       - name: Deploy to Vercel
         working-directory: ./frontend
         run: |
-          vercel deploy ./dist --prod --token=${{ secrets.VERCEL_TOKEN }} 
+          vercel deploy ./dist --prod --yes --token=${{ secrets.VERCEL_TOKEN }} 
