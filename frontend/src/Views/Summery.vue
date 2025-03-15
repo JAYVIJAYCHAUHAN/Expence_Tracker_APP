@@ -6,22 +6,16 @@
     </div>
 
     <!-- Month Selector -->
-    <div class="month-selector">
-      <el-row :gutter="20" justify="space-between" align="middle">
-        <el-col :span="12">
+    <div class="month-selector mb-2">
           <el-date-picker
             v-model="selectedMonth"
             type="month"
             placeholder="Select Month"
             @change="handleMonthChange"
           />
-        </el-col>
-        <el-col :span="12" class="text-right">
           <el-tag type="info" class="budget-tag">
             Monthly Budget: ₹{{ formatAmount(monthlyBudget) }}
           </el-tag>
-        </el-col>
-      </el-row>
     </div>
 
     <!-- Budget Progress -->
@@ -360,7 +354,13 @@ watch(selectedMonth, () => {
 }
 
 .month-selector {
-  margin-bottom: 32px;
+ display: grid;
+ grid-template-columns: auto auto;
+ column-gap: 16px;
+ @media (max-width:480px) {
+  grid-template-columns:auto;
+  row-gap: 8px;
+ }
 }
 
 .budget-tag {
