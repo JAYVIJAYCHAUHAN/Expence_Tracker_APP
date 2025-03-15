@@ -31,16 +31,15 @@ jobs:
       - name: Build Project
         working-directory: ./frontend
         run: npm run build
-        
+
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+
       - name: Deploy to Vercel
-        uses: vercel/actions/cli@master
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-        with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          working-directory: ./frontend
-          vercel-args: '--prod' 
+        working-directory: ./frontend
+        run: |
+          vercel deploy --token ${VERCEL_TOKEN} --prod 
