@@ -6,9 +6,7 @@
     </div>
 
     <!-- Date Range Filter -->
-    <div class="filter-section">
-      <el-row :gutter="20" justify="space-between" align="middle">
-        <el-col :span="12">
+    <div class="filter-section mb-2">
           <el-date-picker
             v-model="dateRange"
             type="daterange"
@@ -18,13 +16,11 @@
             :shortcuts="dateShortcuts"
             @change="handleDateChange"
           />
-        </el-col>
-        <el-col :span="12" class="text-right">
+          <div class="text-right">  
           <el-button type="primary" @click="generateReport">
             <i class="bi bi-download me-2"></i> Export Report
           </el-button>
-        </el-col>
-      </el-row>
+          </div>
     </div>
 
     <!-- Summary Cards -->
@@ -424,7 +420,14 @@ watch(trendTimeframe, () => {
 }
 
 .filter-section {
-  margin-bottom: 32px;
+ display:grid;
+ grid-template-columns: 300px auto;
+ column-gap:16px;
+ @media (max-width:768px) {
+  grid-template-columns:300px;
+  row-gap:8px;
+  
+ }
 }
 
 .text-right {
@@ -564,9 +567,7 @@ watch(trendTimeframe, () => {
     padding: 16px;
   }
 
-  .filter-section .el-col {
-    margin-bottom: 16px;
-  }
+  
 
   .text-right {
     text-align: left;
