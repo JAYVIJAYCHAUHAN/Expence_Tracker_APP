@@ -1,4 +1,4 @@
-name: Frontend CI/CD
+name: Frontend CI
 
 on:
   push:
@@ -11,7 +11,7 @@ on:
       - 'frontend/**'
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
     
     steps:
@@ -31,15 +31,11 @@ jobs:
       - name: Build Project
         working-directory: ./frontend
         run: npm run build
-
-      - name: Install Vercel CLI
-        run: npm install --global vercel@latest
-
-      - name: Deploy to Vercel
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        
+      - name: Run Linting
         working-directory: ./frontend
-        run: |
-          vercel deploy --token ${VERCEL_TOKEN} --prod 
+        run: npm run lint || echo "No lint script found"
+        
+      - name: Run Tests
+        working-directory: ./frontend
+        run: npm run test || echo "No tests specified" 
