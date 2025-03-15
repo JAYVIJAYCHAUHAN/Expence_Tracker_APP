@@ -1,4 +1,8 @@
 {
-  "projectId": "${{ secrets.VERCEL_PROJECT_ID }}",
-  "orgId": "${{ secrets.VERCEL_ORG_ID }}"
+  "orgId": "prj_NOweloLid2KwPrynukFaMBYNkCHp",
+  "settings": {
+    "framework": "vite",
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist"
+  }
 } 
