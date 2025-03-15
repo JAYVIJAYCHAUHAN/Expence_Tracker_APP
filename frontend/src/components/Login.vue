@@ -120,7 +120,8 @@ async function handleLogin() {
     });
 
     if (!response.ok) {
-      throw new Error(await response.text());
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Failed to login');
     }
 
     const data = await response.json();
