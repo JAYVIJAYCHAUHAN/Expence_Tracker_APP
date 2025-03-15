@@ -2,7 +2,6 @@ import express from 'express';
 import cors from 'cors';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
-import { loginRateLimit } from './middleware/rateLimit';
 import { sessionManager } from './middleware/sessionManager';
 import { demoRestrictions } from './middleware/demoRestrictions';
 import userRoutes from './routes/user.routes';
@@ -22,7 +21,7 @@ app.use(cors());
 app.use(express.json());
 
 // Apply rate limiting and session management to login route
-app.use('/api/users/login', loginRateLimit, sessionManager);
+app.use('/api/users/login', sessionManager);
 
 // Apply demo restrictions to all routes
 app.use(demoRestrictions);
