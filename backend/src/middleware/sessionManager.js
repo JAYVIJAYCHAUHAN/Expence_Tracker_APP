@@ -1,14 +1,13 @@
-import { Request, Response, NextFunction } from 'express';
-import User from '../models/User';
+const User = require('../models/User');
 
-const activeSessions = new Map<string, Set<string>>();
+const activeSessions = new Map();
 
 // Clean up expired sessions every hour
 setInterval(() => {
   activeSessions.clear();
 }, 3600000);
 
-export const sessionManager = async (req: Request, res: Response, next: NextFunction) => {
+const sessionManager = async (req, res, next) => {
   const email = req.body.email;
   const token = req.header('Authorization')?.replace('Bearer ', '');
 
@@ -30,4 +29,6 @@ export const sessionManager = async (req: Request, res: Response, next: NextFunc
   }
 
   next();
-}; 
+};
+
+module.exports = sessionManager; 

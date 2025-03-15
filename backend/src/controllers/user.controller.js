@@ -1,18 +1,55 @@
-import { Request, Response } from 'express';
-import User from '../models/User';
+const User = require('../models/User');
 
-export const register = async (req: Request, res: Response) => {
+const register = async (req, res) => {
   try {
-    const user = new User(req.body);
+    // Check if user already exists
+    const existingUser = await User.findOne({ 
+      $or: [
+        { email: req.body.email },
+        { userName: req.body.userName }
+      ]
+    });
+    
+    if (existingUser) {
+      return res.status(400).json({ 
+        message: existingUser.email === req.body.email ? 
+          'Email already registered' : 
+          'Username already taken' 
+      });
+    }
+
+    // Create new user
+    const user = new User({
+      userName: req.body.userName,
+      email: req.body.email,
+      password: req.body.password
+    });
     await user.save();
+
+    // Generate authentication token
     const token = await user.generateAuthToken();
-    res.status(201).json({ user, token });
+
+    // Calculate token expiration time (1 hour from now)
+    const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
+
+    // Send response with user data and token
+    res.status(201).json({ 
+      user, 
+      token,
+      expiresAt,
+      message: 'Registration successful. Token expires in 1 hour.'
+    });
   } catch (error) {
-    res.status(400).json({ message: 'Error registering user', error });
+    console.error('Registration error:', error);
+    res.status(400).json({ 
+      message: 'Error registering user', 
+      error: error.message,
+      details: error.errors
+    });
   }
 };
 
-export const login = async (req: Request, res: Response) => {
+const login = async (req, res) => {
   try {
     console.log('Login attempt with:', req.body);
     const { email, password } = req.body;
@@ -58,7 +95,7 @@ export const login = async (req: Request, res: Response) => {
       console.error('Error comparing passwords:', compareError);
       return res.status(500).json({ message: 'Error verifying credentials' });
     }
-  } catch (error: any) {
+  } catch (error) {
     console.error('Login error:', error);
     res.status(500).json({ 
       message: 'Error logging in', 
@@ -68,12 +105,12 @@ export const login = async (req: Request, res: Response) => {
   }
 };
 
-export const logout = async (req: Request, res: Response) => {
+const logout = async (req, res) => {
   try {
     const user = req.user;
     const token = req.header('Authorization')?.replace('Bearer ', '');
     
-    user.tokens = user.tokens.filter((t: any) => t.token !== token);
+    user.tokens = user.tokens.filter((t) => t.token !== token);
     await user.save();
     
     res.json({ message: 'Logged out successfully' });
@@ -82,10 +119,17 @@ export const logout = async (req: Request, res: Response) => {
   }
 };
 
-export const getProfile = async (req: Request, res: Response) => {
+const getProfile = async (req, res) => {
   try {
     res.json(req.user);
   } catch (error) {
     res.status(500).json({ message: 'Error fetching profile', error });
   }
+};
+
+module.exports = {
+  register,
+  login,
+  logout,
+  getProfile
 }; 

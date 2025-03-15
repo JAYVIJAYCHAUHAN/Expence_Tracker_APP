@@ -1,16 +1,7 @@
-import { Request, Response, NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
-import User from '../models/User';
+const jwt = require('jsonwebtoken');
+const User = require('../models/User');
 
-declare global {
-  namespace Express {
-    interface Request {
-      user?: any;
-    }
-  }
-}
-
-export const authenticate = async (req: Request, res: Response, next: NextFunction) => {
+const authenticate = async (req, res, next) => {
   try {
     const token = req.header('Authorization')?.replace('Bearer ', '');
     
@@ -19,7 +10,7 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
     }
     
     const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
-    const user = await User.findOne({ _id: (decoded as any)._id });
+    const user = await User.findOne({ _id: decoded._id });
     
     if (!user) {
       throw new Error();
@@ -30,4 +21,6 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
   } catch (error) {
     res.status(401).json({ message: 'Please authenticate' });
   }
-}; 
+};
+
+module.exports = authenticate; 

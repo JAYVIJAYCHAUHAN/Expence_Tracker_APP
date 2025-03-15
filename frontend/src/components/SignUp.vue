@@ -69,7 +69,6 @@
             class="login-btn"
             style="margin-bottom: 5px;"
           >
-            
             Log in
           </el-button>
         </div>
@@ -129,19 +128,29 @@ async function handleSubmit() {
     await signupForm.value.validate();
     isSubmitting.value = true;
 
-    const response = await fetch("http://localhost:5000/api/users/signup", {
+    const response = await fetch("http://localhost:5000/api/users/register", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(formValues.value),
+      body: JSON.stringify({
+        userName: formValues.value.userName,
+        email: formValues.value.email,
+        password: formValues.value.password
+      }),
     });
 
     if (!response.ok) {
-      throw new Error(await response.text());
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Failed to create account');
     }
 
     const data = await response.json();
+    
+    // Store token and user data
+    localStorage.setItem("token", data.token);
+    localStorage.setItem("user", JSON.stringify(data.user));
+    
     ElMessage.success('Account created successfully!');
     formValues.value = { userName: "", email: "", password: "" };
     isLoginModalVisible.value = true; // Open login modal after successful signup
