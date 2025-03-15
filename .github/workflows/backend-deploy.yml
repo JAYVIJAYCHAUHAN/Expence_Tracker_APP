@@ -14,6 +14,8 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     environment: Production
+    env:
+      RAILWAY_TOKEN: ${{secrets.RAILWAY_TOKEN }}
     
     steps:
       - uses: actions/checkout@v3
@@ -36,6 +38,6 @@ jobs:
       - name: Deploy to Railway
         uses: bervProject/railway-deploy@main
         with:
-          railway-token: ${{ secrets.RAILWAY_TOKEN }}
+          railway-token: ${{ env.RAILWAY_TOKEN }}
           service: "expance-tracker-backend"
           directory: "./backend" 
