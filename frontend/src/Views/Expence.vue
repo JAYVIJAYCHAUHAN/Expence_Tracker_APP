@@ -217,7 +217,7 @@ import { ElMessage, ElMessageBox,  } from 'element-plus';
 import { computed, onMounted, ref } from 'vue';
 import type { FormInstance } from 'element-plus';
 import type { Expense } from '@/type/types';
-const API_URL = 'http://localhost:5000/api';
+const API_URL =  import.meta.env.VITE_API_URL;
 
 // Form data
 const expenseFormRef = ref<FormInstance>();

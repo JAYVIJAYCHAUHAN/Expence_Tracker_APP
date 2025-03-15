@@ -73,6 +73,7 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
+const API_URL =  import.meta.env.VITE_API_URL; 
 
 const props = defineProps({
   isLoginModelOpen: {
@@ -110,7 +111,7 @@ async function handleLogin() {
     await loginForm.value.validate();
     isSubmitting.value = true;
 
-    const response = await fetch("http://localhost:5000/api/users/login", {
+    const response = await fetch(`${API_URL}/users/login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

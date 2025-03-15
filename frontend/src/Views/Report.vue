@@ -137,7 +137,7 @@ import axios from 'axios';
 import type { CategoryData, Expense, TrendData } from '@/type/types';
 
 const router = useRouter();
-const API_URL = 'http://localhost:5000/api';
+const API_URL =  import.meta.env.VITE_API_URL;
 
 // Date range picker shortcuts
 const dateShortcuts = [

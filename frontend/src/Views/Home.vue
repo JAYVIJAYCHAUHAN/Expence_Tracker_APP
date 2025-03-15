@@ -113,7 +113,7 @@ const totalUsers = ref(0);
 const totalExpenses = ref(0);
 const isAuthenticated = ref(false);
 
-const API_URL = 'http://localhost:5000/api';
+const API_URL = import.meta.env.VITE_API_URL;
 
 // Fetch stats
 const fetchStats = async () => {

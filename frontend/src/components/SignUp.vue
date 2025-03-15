@@ -82,6 +82,7 @@
 import { ref } from "vue";
 import { ElMessage } from 'element-plus';
 import Login from "./Login.vue";
+const API_URL =  import.meta.env.VITE_API_URL;
 
 const isSubmitting = ref(false);
 const signupForm = ref();
@@ -128,7 +129,7 @@ async function handleSubmit() {
     await signupForm.value.validate();
     isSubmitting.value = true;
 
-    const response = await fetch("http://localhost:5000/api/users/register", {
+    const response = await fetch(`${API_URL}/users/register`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

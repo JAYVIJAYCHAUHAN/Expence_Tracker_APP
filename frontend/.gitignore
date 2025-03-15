@@ -21,3 +21,6 @@ Thumbs.db
 
 # NPM package-lock files (optional: some prefer to commit these)
 package-lock.json
+
+#adding the .env file to ignore
+.env
