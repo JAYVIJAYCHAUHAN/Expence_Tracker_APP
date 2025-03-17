@@ -8,25 +8,22 @@
     </div>
     <!-- Navigation Menu for Large Screens -->
     <div class="nav-items" v-if="!isSmallScreen">
-      <el-menu mode="horizontal" @select="handleSelect" :router="true" class="transparent-menu">
+      <el-menu mode="horizontal" @select="handleSelect" :router="true" class=" nav-items-left">
         <el-tooltip content="Home" placement="bottom" effect="light">
           <el-menu-item index="/" :route="{ name: 'Home' }" class="nav-item">
             <i class="bi bi-house-door-fill nav-icon"></i>
           </el-menu-item>
         </el-tooltip>
-
         <el-tooltip content="Summary" placement="bottom" effect="light">
           <el-menu-item index="/summery" :route="{ name: 'Summery' }" class="nav-item">
             <i class="bi bi-graph-up nav-icon"></i>
           </el-menu-item>
         </el-tooltip>
-
         <el-tooltip content="Report" placement="bottom" effect="light">
           <el-menu-item index="/report" :route="{ name: 'Report' }" class="nav-item">
             <i class="bi bi-file-earmark-text nav-icon"></i>
           </el-menu-item>
         </el-tooltip>
-
         <el-tooltip content="Expense" placement="bottom" effect="light">
           <el-menu-item index="/expence" :route="{ name: 'Expence' }" class="nav-item">
             <i class="bi bi-wallet2 nav-icon"></i>
@@ -62,13 +59,8 @@
           <span>Expense</span>
         </el-menu-item>
       </el-menu>
-      <div class="sidebar-actions">
-        <router-link to="/signup" class="w-100">
-          <el-button type="primary" class="auth-button w-100">Sign Up</el-button>
-        </router-link>
-        <router-link to="/login" class="w-100">
-          <el-button class="auth-button w-100">Login</el-button>
-        </router-link>
+      <div class="nav-actions-sidebar">
+        <UserMenu />
       </div>
     </div>
 
@@ -89,7 +81,7 @@ const isActive = ref(false);
 const isSmallScreen = ref(false);
 const scrolled = ref(false);
 
-const handleSelect = (key, keyPath) => {
+const handleSelect = (key: string, keyPath: string) => {
   console.log(key, keyPath);
   if (isSmallScreen.value) {
     isActive.value = false;
@@ -101,18 +93,18 @@ const toggleSidebar = () => {
 };
 
 const updateScreenSize = () => {
-  isSmallScreen.value = window.innerWidth <= 576;
+  isSmallScreen.value = window.innerWidth <= 640;
 };
 
 const handleScroll = () => {
   scrolled.value = window.scrollY > 20;
 };
 
-const closeSidebar = (event) => {
+const closeSidebar = (event: MouseEvent) => {
   const sidebar = document.querySelector(".sidebar");
   const toggle = document.querySelector(".toggle");
   
-  if (sidebar && toggle && !sidebar.contains(event.target) && !toggle.contains(event.target)) {
+  if (sidebar && toggle && !sidebar.contains(event.target as Node) && !toggle.contains(event.target as Node)) {
     isActive.value = false;
   }
 };
@@ -182,29 +174,29 @@ onUnmounted(() => {
 }
 
 .nav-items {
-  display: flex;
+  display: grid;
+  grid-template-columns:auto 1fr ;
   align-items: center;
-  gap: 10px;
-}
-
-.transparent-menu {
-  background-color: transparent !important;
-  border-bottom: none !important;
-  display: flex;
-  align-items: center;
-  height: 60px !important;
 }
 
 .nav-item {
-  display: flex;
-  align-items: center;
-  justify-content: center;
   height: 50px !important;
   width: 50px !important;
   padding: 0 !important;
   margin: 0 5px !important;
   border-radius: 12px;
   transition: all 0.3s ease;
+}
+
+.nav-items-left {
+  display: flex;
+}
+
+:deep(.el-menu--horizontal.el-menu) {
+  width: 360px !important;
+  border-bottom: none !important;
+  display: flex;
+  justify-content: start;
 }
 
 .nav-item:hover {
@@ -229,6 +221,14 @@ onUnmounted(() => {
 
 .nav-actions {
   margin-left: auto;
+  display: flex;
+  align-items: center;
+}
+
+.nav-actions-sidebar {
+  margin-left: auto;
+  margin-right: 10px;
+  margin-bottom: 10px;
   display: flex;
   align-items: center;
 }
@@ -339,11 +339,15 @@ onUnmounted(() => {
   transform: rotate(-45deg) translate(6px, -6px);
 }
 
-@media only screen and (max-width: 576px) {
+@media only screen and (max-width: 640px) {
   .toggle {
     display: flex;
   }
 
+  :deep(.el-menu--horizontal.el-menu) {
+    width: 100% !important;
+  }
+  
   .nav-items {
     display: none;
   }
@@ -362,7 +366,7 @@ onUnmounted(() => {
   }
 }
 
-@media only screen and (min-width: 577px) {
+@media only screen and (min-width: 641px) {
   .toggle {
     display: none;
   }

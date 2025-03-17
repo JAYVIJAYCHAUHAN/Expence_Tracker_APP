@@ -16,6 +16,7 @@
         <el-avatar 
           :size="100" 
           :src="formData.avatarUrl" 
+          v-model="formData.avatarUrl"
           class="profile-avatar"
         >
           <i class="bi bi-person-circle"></i>
@@ -104,7 +105,7 @@ import type { UploadFile } from 'element-plus';
 
 const formRef = ref<FormInstance>();
 const loading = ref(false);
-
+const API_URL = import.meta.env.VITE_API_URL;
 const formData = ref({
   fullName: '',
   userName: '',
@@ -113,6 +114,9 @@ const formData = ref({
   bio: '',
   avatarUrl: ''
 });
+
+// Add maximum file size constant
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
 const rules: FormRules = {
   fullName: [
@@ -147,44 +151,142 @@ const loadUserData = () => {
   }
 };
 
-const handleAvatarChange = (file: UploadFile) => {
+// Add image compression function
+const compressImage = async (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+        
+        // Max dimensions
+        const MAX_WIDTH = 800;
+        const MAX_HEIGHT = 800;
+        
+        if (width > height) {
+          if (width > MAX_WIDTH) {
+            height *= MAX_WIDTH / width;
+            width = MAX_WIDTH;
+          }
+        } else {
+          if (height > MAX_HEIGHT) {
+            width *= MAX_HEIGHT / height;
+            height = MAX_HEIGHT;
+          }
+        }
+        
+        canvas.width = width;
+        canvas.height = height;
+        
+        const ctx = canvas.getContext('2d');
+        ctx?.drawImage(img, 0, 0, width, height);
+        
+        // Convert to JPEG with 0.8 quality
+        const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.8);
+        resolve(compressedDataUrl);
+      };
+      img.onerror = reject;
+      img.src = e.target?.result as string;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+};
+
+const handleAvatarChange = async (file: UploadFile) => {
   if (!file.raw) return;
   
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    formData.value.avatarUrl = e.target?.result as string;
-  };
-  reader.readAsDataURL(file.raw);
+  // Check file size
+  if (file.raw.size > MAX_FILE_SIZE) {
+    ElMessage.error('Image size should not exceed 5MB');
+    return;
+  }
+  
+  // Check file type
+  if (!file.raw.type.startsWith('image/')) {
+    ElMessage.error('Please upload an image file');
+    return;
+  }
+  
+  loading.value = true;
+  try {
+    const compressedImage = await compressImage(file.raw);
+    formData.value.avatarUrl = compressedImage;
+    ElMessage.success('Image uploaded successfully');
+  } catch (error) {
+    console.error('Error processing image:', error);
+    ElMessage.error('Error processing image');
+  } finally {
+    loading.value = false;
+  }
 };
 
 const submitForm = async () => {
   if (!formRef.value) return;
+  
+  try {
+    await formRef.value.validate();
+    loading.value = true;
+    
+    // Remove extra fields that shouldn't be sent to the backend
+    const updateData = {
+      fullName: formData.value.fullName,
+      userName: formData.value.userName,
+      email: formData.value.email,
+      phone: formData.value.phone,
+      bio: formData.value.bio,
+      avatarUrl: formData.value.avatarUrl
+    };
+    
+    const response = await fetch(`${API_URL}/users/profile`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      },
+      body: JSON.stringify(updateData)
+    });
 
-  await formRef.value.validate(async (valid) => {
-    if (valid) {
-      loading.value = true;
-      try {
-
-        
-        // Here you would typically make an API call to update the profile
-        // For now, we'll just update localStorage
-        localStorage.setItem('user', JSON.stringify(formData.value));
-        ElMessage.success('Profile updated successfully');
-      } catch (error) {
-        ElMessage.error('Failed to update profile');
-      } finally {
-        loading.value = false;
-      }
+    const data = await response.json();
+    
+    if (!response.ok) {
+      throw new Error(data.message || 'Failed to update profile');
     }
-  });
+
+    // Update local storage with new user data
+    localStorage.setItem('user', JSON.stringify(data.user));
+    
+    // Dispatch storage event for other components
+    window.dispatchEvent(new StorageEvent('storage', {
+      key: 'user',
+      newValue: JSON.stringify(data.user)
+    }));
+    
+    ElMessage.success(data.message || 'Profile updated successfully');
+    
+    // Emit event for parent components
+    emit('profile-updated', data.user);
+    
+  } catch (error: any) {
+    console.error('Profile update error:', error);
+    ElMessage.error(error.message || 'Error updating profile');
+  } finally {
+    loading.value = false;
+  }
 };
 
 const resetForm = () => {
   if (formRef.value) {
     formRef.value.resetFields();
-    loadUserData();
+    loadUserData(); // Reload original data
   }
 };
+
+// Add defineEmits
+const emit = defineEmits(['profile-updated']);
 
 onMounted(() => {
   loadUserData();
@@ -272,7 +374,7 @@ onMounted(() => {
   color: #666;
 }
 
-@media (max-width: 576px) {
+@media (max-width: 640px) {
   .profile-container {
     margin: 20px auto;
     padding: 16px;

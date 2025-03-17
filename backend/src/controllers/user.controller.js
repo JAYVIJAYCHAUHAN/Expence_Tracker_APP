@@ -127,9 +127,64 @@ const getProfile = async (req, res) => {
   }
 };
 
+const updateProfile = async (req, res) => {
+  try {
+    const user = req.user;
+    const updates = req.body;
+    const allowedUpdates = ['userName', 'email', 'password', 'fullName', 'bio', 'phone', 'avatarUrl'];
+    console.log('updates', updates);
+    // Validate that only allowed fields are being updated
+    const updateFields = Object.keys(updates);
+    const isValidOperation = updateFields.every(field => allowedUpdates.includes(field));
+    
+    if (!isValidOperation) {
+      return res.status(400).json({ message: 'Invalid updates!' });
+    }
+
+    // Check if email is being updated and if it's already taken
+    if (updates.email && updates.email !== user.email) {
+      const existingUser = await User.findOne({ email: updates.email });
+      if (existingUser) {
+        return res.status(400).json({ message: 'Email already registered' });
+      }
+    }
+
+    // Check if username is being updated and if it's already taken
+    if (updates.userName && updates.userName !== user.userName) {
+      const existingUser = await User.findOne({ userName: updates.userName });
+      if (existingUser) {
+        return res.status(400).json({ message: 'Username already taken' });
+      }
+    }
+
+    // Apply updates
+    updateFields.forEach(field => {
+      user[field] = updates[field];
+    });
+
+    await user.save();
+    
+    // Remove sensitive information before sending response
+    const userResponse = user.toJSON();
+    
+    res.json({
+      user: userResponse,
+      message: 'Profile updated successfully'
+    });
+  } catch (error) {
+    console.error('Profile update error:', error);
+    res.status(500).json({ 
+      message: 'Error updating profile', 
+      error: error.message,
+      details: error.errors
+    });
+  }
+};
+
 module.exports = {
   register,
   login,
   logout,
-  getProfile
+  getProfile,
+  updateProfile
 }; 

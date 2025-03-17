@@ -4,16 +4,22 @@
       <router-link to="/signup">
         <el-button type="primary" class="auth-button signup-btn">Sign Up</el-button>
       </router-link>
-      <router-link to="/login">
-        <el-button class="auth-button login-btn">Login</el-button>
-      </router-link>
+      <el-button class="auth-button login-btn" @click="openLoginModal">
+        Login
+      </el-button>
     </template>
     <template v-else>
       <el-dropdown trigger="click" @command="handleCommand">
-        <el-button class="user-menu-btn">
-          <i class="bi bi-person-circle me-2"></i>
+        <el-button class="user-menu-btn" @click="toggleChevron">
+          <el-avatar 
+            :size="24" 
+            :src="userData?.avatarUrl" 
+            class="user-avatar"
+          >
+            <i class="bi bi-person-circle"></i>
+          </el-avatar>
           {{ userName }}
-          <i :class="`bi bi-chevron-${chevron ? 'up' : 'down'} ms-1 fs-6`" @click="toggleChevron"></i>
+          <i :class="`bi bi-chevron-${chevron ? 'up' : 'down'} ms-1 fs-6`"></i>
         </el-button>
         <template #dropdown>
           <el-dropdown-menu>
@@ -34,6 +40,7 @@
 import { computed, onUnmounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
+import { useLoginModal } from '@/composables/useLoginModal';
 
 interface UserData {
   fullName: string;
@@ -45,9 +52,11 @@ interface UserData {
 }
 
 const router = useRouter();
+const { openLoginModal } = useLoginModal();
 const isAuthenticated = ref(!!localStorage.getItem('token'));
 const userData = ref<UserData | null>(null);
-const chevron = ref(false); 
+const chevron = ref(false);
+
 const userName = computed(() => {
   if (!userData.value) return 'User';
   return userData.value.userName || 'User';
@@ -65,6 +74,11 @@ const loadUserData = () => {
     userData.value = null;
   }
   isAuthenticated.value = !!localStorage.getItem('token');
+};
+
+const handleLoginSuccess = () => {
+  loadUserData();
+  ElMessage.success('Login successful');
 };
 
 const handleCommand = (command: string) => {
@@ -131,6 +145,7 @@ function toggleChevron() {
 }
 
 .user-menu-btn {
+  width: 150px;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -151,6 +166,10 @@ function toggleChevron() {
   font-size: 1.2rem;
 }
 
+.user-avatar {
+  border: 1px solid #eee;
+}
+
 :deep(.el-dropdown-menu__item) {
   display: flex;
   align-items: center;
@@ -165,5 +184,24 @@ function toggleChevron() {
 
 :deep(.el-dropdown-menu__item:hover i) {
   color: #00c4cc;
+}
+
+:deep(.login-dialog) {
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+:deep(.login-dialog .el-dialog__header) {
+  margin: 0;
+  padding: 20px;
+  border-bottom: 1px solid #eee;
+}
+
+:deep(.login-dialog .el-dialog__body) {
+  padding: 0;
+}
+
+:deep(.login-dialog .el-dialog__headerbtn) {
+  top: 20px;
 }
 </style> 

@@ -217,7 +217,7 @@ const validateEmail = (email: string) => {
   }
 }
 
-@media only screen and (max-width: 576px) {
+@media only screen and (max-width: 640px) {
   .footer {
     padding: 30px 0;
   }

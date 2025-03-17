@@ -30,7 +30,7 @@ import Footer from './components/Footer/index.vue';
   padding-right: 20px;
 }
 
-@media only screen and (max-width: 576px) {
+@media only screen and (max-width: 640px) {
   .main-content {
     padding-top: 70px;
     padding-left: 16px;

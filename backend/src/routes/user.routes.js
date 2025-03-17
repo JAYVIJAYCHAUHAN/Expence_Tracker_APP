@@ -11,5 +11,6 @@ router.post('/login', sessionManager, userController.login);
 // Protected routes
 router.post('/logout', authenticate, userController.logout);
 router.get('/profile', authenticate, userController.getProfile);
+router.put('/profile', authenticate, userController.updateProfile);
 
 module.exports = router; 

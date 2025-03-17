@@ -79,7 +79,7 @@
     <el-dialog
       v-model="showDemoModal"
       title="Try Demo Account"
-      width="400px"
+      width="360px"
     >
       <div class="demo-content">
         <p>Experience our expense tracker with a demo account:</p>

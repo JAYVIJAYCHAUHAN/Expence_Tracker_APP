@@ -2,7 +2,7 @@
   <el-dialog
     :model-value="isLoginModelOpen"
     @update:model-value="updateLoginModal"
-    width="480px"
+    width="370px"
     :center="true"
     @close="resetForm"
     class="login-dialog"
@@ -82,7 +82,7 @@ const props = defineProps({
   }
 });
 
-const emit = defineEmits(['update:model-value']);
+const emit = defineEmits(['update:model-value', 'login-success']);
 
 const router = useRouter();
 const isSubmitting = ref(false);
@@ -132,6 +132,8 @@ async function handleLogin() {
     
     // Close the login modal
     emit("update:model-value", false);
+    // Emit login success event
+    emit("login-success");
     
     // Show success message
     ElMessage.success('Login successful!');
