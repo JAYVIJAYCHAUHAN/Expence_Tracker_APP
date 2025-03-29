@@ -4,7 +4,7 @@
       <router-link to="/signup">
         <el-button type="primary" class="auth-button signup-btn">Sign Up</el-button>
       </router-link>
-      <el-button class="auth-button login-btn" @click="openLoginModal">
+      <el-button class="auth-button login-btn" @click="handleLogin">
         Login
       </el-button>
     </template>
@@ -26,6 +26,13 @@
             <el-dropdown-item command="profile">
               <i class="bi bi-person"></i> Edit Profile
             </el-dropdown-item>
+            <el-dropdown-item command="settings">
+              <i class="bi bi-gear"></i> Settings
+            </el-dropdown-item>
+            <el-dropdown-item command="about">
+              <i class="bi bi-info-circle"></i> About
+              <span class="version-badge">v{{ appVersion }}</span>
+            </el-dropdown-item>
             <el-dropdown-item divided command="logout">
               <i class="bi bi-box-arrow-right"></i> Logout
             </el-dropdown-item>
@@ -37,10 +44,12 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onUnmounted, ref, watch } from 'vue';
+import { computed, onUnmounted, ref, watch, getCurrentInstance, onMounted, inject } from 'vue';
 import { useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
 import { useLoginModal } from '@/composables/useLoginModal';
+import { userApi } from '@/utils/api';
+import { useGamification } from '@/utils/gamification';
 
 interface UserData {
   fullName: string;
@@ -51,16 +60,28 @@ interface UserData {
   avatarUrl: string;
 }
 
+// Define the type for the login modal
+type LoginModal = ReturnType<typeof useLoginModal>;
+
 const router = useRouter();
-const { openLoginModal } = useLoginModal();
+// First try to use the globally provided login modal (preferred)
+const injectedLoginModal = inject<LoginModal>('loginModal');
+// Fallback to local instance if not provided
+const loginModal = injectedLoginModal || useLoginModal();
+
 const isAuthenticated = ref(!!localStorage.getItem('token'));
 const userData = ref<UserData | null>(null);
 const chevron = ref(false);
 
-const userName = computed(() => {
-  if (!userData.value) return 'User';
-  return userData.value.userName || 'User';
-});
+// Get app version from global properties
+const instance = getCurrentInstance();
+const appVersion = computed(() => instance?.appContext.config.globalProperties.$appVersion || '2.0.0');
+
+// Initialize user name and initial (fix for read-only computed property)
+const userName = ref('User');
+const userInitial = ref('U');
+
+const { resetProgress } = useGamification();
 
 const loadUserData = () => {
   const storedUser = localStorage.getItem('user');
@@ -76,9 +97,9 @@ const loadUserData = () => {
   isAuthenticated.value = !!localStorage.getItem('token');
 };
 
-const handleLoginSuccess = () => {
-  loadUserData();
-  ElMessage.success('Login successful');
+const handleLogin = () => {
+  // Use the login modal from injection or local instance
+  loginModal.openLoginModal('/dashboard');
 };
 
 const handleCommand = (command: string) => {
@@ -86,30 +107,85 @@ const handleCommand = (command: string) => {
     case 'profile':
       router.push('/profile');
       break;
+    case 'settings':
+      router.push('/settings');
+      break;
+    case 'about':
+      router.push('/about');
+      break;
     case 'logout':
       handleLogout();
       break;
   }
 };
 
-const handleLogout = () => {
-  localStorage.removeItem('token');
-  localStorage.removeItem('user');
-  isAuthenticated.value = false;
-  userData.value = null;
-  ElMessage.success('Logged out successfully');
-  router.push('/');
+const handleLogout = async () => {
+  try {
+    // Call the logout API to invalidate token on server
+    await userApi.logout().catch(() => {
+      // Silently catch errors from logout API
+      console.log('API logout failed, continuing with client logout');
+    });
+    
+    // Clear authentication data
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    
+    // Reset user-specific feature data
+    localStorage.removeItem('savings_goals');
+    localStorage.removeItem('monthly_budget');
+    localStorage.removeItem('notification_settings');
+    
+    // Reset user progress using the gamification service
+    resetProgress();
+    
+    // Reset feature flags to defaults
+    localStorage.setItem('feature_savings_goals', 'false');
+    localStorage.setItem('feature_budget_tips', 'false');
+    localStorage.setItem('feature_data_export', 'false');
+    localStorage.setItem('feature_progress_tracking', 'true');
+    
+    // Show success message
+    ElMessage.success('Logged out successfully');
+    
+    // Redirect to login page
+    router.push('/signup');
+  } catch (error: any) {
+    console.error('Error during logout:', error);
+    
+    // Still perform client-side logout even if API call fails
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    resetProgress(); // Also reset progress here
+    ElMessage.warning('Logged out locally. Some server data may not have been cleared.');
+    router.push('/login');
+  }
 };
 
-// Watch for changes in localStorage
-window.addEventListener('storage', loadUserData);
-
-// Initial load
-loadUserData();
-
-// Clean up event listener
-onUnmounted(() => {
-  window.removeEventListener('storage', loadUserData);
+// Initialize
+onMounted(async () => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    try {
+      // Validate token and get user data
+      const response = await userApi.getProfile();
+      const userData = response.data; // Access the data property of the response
+      
+      if (userData) {
+        userName.value = userData.name || userData.userName || 'User';
+        userInitial.value = ((userData.name || userData.userName) && 
+          (userData.name || userData.userName).charAt(0).toUpperCase()) || 'U';
+      }
+    } catch (error: any) {
+      console.error('Error fetching user data:', error);
+      // Handle invalid token
+      if (error.response && error.response.status === 401) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        router.push('/login');
+      }
+    }
+  }
 });
 
 // Watch for route changes
@@ -168,6 +244,15 @@ function toggleChevron() {
 
 .user-avatar {
   border: 1px solid #eee;
+}
+
+.version-badge {
+  background: linear-gradient(135deg, #00c4cc20, #7209b720);
+  color: #7209b7;
+  padding: 1px 6px;
+  border-radius: 10px;
+  font-size: 0.7rem;
+  margin-left: 8px;
 }
 
 :deep(.el-dropdown-menu__item) {

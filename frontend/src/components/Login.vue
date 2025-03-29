@@ -70,10 +70,11 @@
 
 <script setup lang="ts">
 // todo use setup  and emitprops and emit
-import { ref } from 'vue';
+import { ref, inject } from 'vue';
 import { useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
-const API_URL =  import.meta.env.VITE_API_URL; 
+import { useLoginModal } from '@/composables/useLoginModal';
+const API_URL = import.meta.env.VITE_API_URL; 
 
 const props = defineProps({
   isLoginModelOpen: {
@@ -84,6 +85,9 @@ const props = defineProps({
 
 const emit = defineEmits(['update:model-value', 'login-success']);
 
+// Try to get the login modal from injection
+type LoginModal = ReturnType<typeof useLoginModal>;
+const injectedLoginModal = inject<LoginModal>('loginModal');
 const router = useRouter();
 const isSubmitting = ref(false);
 const loginForm = ref();
@@ -111,7 +115,7 @@ async function handleLogin() {
     await loginForm.value.validate();
     isSubmitting.value = true;
 
-    const response = await fetch(`${API_URL}/users/login`, {
+    const response = await fetch(`${API_URL}/auth/login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -135,11 +139,15 @@ async function handleLogin() {
     // Emit login success event
     emit("login-success");
     
-    // Show success message
-    ElMessage.success('Login successful!');
-    
-    // Redirect to dashboard
-    router.push('/dashboard');
+    // Let the injected login modal handle redirection if available
+    if (injectedLoginModal) {
+      // The injected login modal will handle redirection based on saved path
+      // and will show success message
+    } else {
+      // Fallback behavior if not using the global login modal
+      ElMessage.success('Login successful!');
+      router.push('/dashboard');
+    }
   } catch (error: unknown) {
     ElMessage.error(error instanceof Error ? error.message : 'Failed to login');
     console.error(error);

@@ -99,7 +99,7 @@
     </div>
 
     <!-- Recent Transactions -->
-    <div class="transactions-section">
+    <!-- <div class="transactions-section">
       <h3>Recent Transactions</h3>
       <el-table :data="recentTransactions" style="width: 100%">
         <el-table-column prop="date" label="Date" width="120">
@@ -119,7 +119,7 @@
           </template>
         </el-table-column>
       </el-table>
-    </div>
+    </div> -->
   </div>
 </template>
 

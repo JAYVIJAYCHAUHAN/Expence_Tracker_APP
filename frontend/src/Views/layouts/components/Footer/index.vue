@@ -49,15 +49,29 @@
         </div>
       </div>
     </div>
+    <!-- Copyright and Version Section -->
+    <div class="copyright-section">
+      <p class="copyright">© {{ currentYear }} Expense Tracker. All rights reserved.</p>
+      <div class="footer-links">
+        <router-link to="/about" class="footer-link">About</router-link>
+        <span class="link-divider">|</span>
+        <a href="https://github.com/JAYVIJAYCHAUHAN/expense-tracker" target="_blank" class="footer-link">GitHub</a>
+      </div>
+      <p class="version">Version {{ appVersion }} - <span class="secure-tag">Secured</span></p>
+    </div>
   </footer>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, getCurrentInstance } from 'vue';
 import { ElMessage } from 'element-plus';
 
 const email = ref('');
 const currentYear = computed(() => new Date().getFullYear());
+
+// Get app version from global properties
+const instance = getCurrentInstance();
+const appVersion = computed(() => instance?.appContext.config.globalProperties.$appVersion || '2.0.0');
 
 const handleSubscribe = () => {
   if (!email.value) {
@@ -84,7 +98,7 @@ const validateEmail = (email: string) => {
   background: linear-gradient(to right, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.98));
   backdrop-filter: blur(10px);
   border-top: 1px solid rgba(0, 196, 204, 0.1);
-  padding: 40px 0;
+  padding: 40px 0 20px;
   margin-top: 60px;
 }
 
@@ -210,6 +224,52 @@ const validateEmail = (email: string) => {
   box-shadow: 0 4px 12px rgba(0, 196, 204, 0.2);
 }
 
+/* Copyright and Version section */
+.copyright-section {
+  max-width: 1200px;
+  margin: 30px auto 0;
+  padding: 15px 20px 0;
+  border-top: 1px solid rgba(0, 196, 204, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #888;
+  font-size: 0.9rem;
+}
+
+.copyright, .version {
+  margin: 0;
+}
+
+.footer-links {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.footer-link {
+  color: #888;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.footer-link:hover {
+  color: #00c4cc;
+}
+
+.link-divider {
+  color: #ccc;
+}
+
+.secure-tag {
+  background: linear-gradient(135deg, #00c4cc, #7209b7);
+  color: white;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: bold;
+}
+
 @media only screen and (max-width: 768px) {
   .footer-content {
     grid-template-columns: 1fr;
@@ -219,7 +279,7 @@ const validateEmail = (email: string) => {
 
 @media only screen and (max-width: 640px) {
   .footer {
-    padding: 30px 0;
+    padding: 30px 0 15px;
   }
 
   .footer-content {
@@ -239,6 +299,17 @@ const validateEmail = (email: string) => {
   .footer-section {
     align-items: center;
     text-align: center;
+  }
+  
+  .copyright-section {
+    flex-direction: column;
+    gap: 10px;
+    text-align: center;
+  }
+  
+  .footer-links {
+    margin: 5px 0;
+    justify-content: center;
   }
 }
 </style> 

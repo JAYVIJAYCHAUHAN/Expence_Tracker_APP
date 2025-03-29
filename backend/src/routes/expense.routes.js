@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const authenticate = require('../middleware/auth');
+const authMiddleware = require('../middleware/auth');
 const demoRestrictions = require('../middleware/demoRestrictions');
 const {
   getExpenses,
@@ -12,7 +12,7 @@ const {
 } = require('../controllers/expense.controller');
 
 // All routes require authentication
-router.use(authenticate);
+router.use(authMiddleware.verifyToken);
 router.use(demoRestrictions);
 
 // Get all expenses for the logged-in user

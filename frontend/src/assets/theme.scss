@@ -75,3 +75,211 @@ $theme-colors: (
 .bg-dark {
   background-color: #343a40 !important;
 }
+
+/* Light and Dark Theme Variables */
+
+:root {
+  /* Light Theme (Default) */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f5f7fa;
+  --bg-tertiary: #e9ecef;
+  --text-primary: #333333;
+  --text-secondary: #666666;
+  --text-muted: #999999;
+  --border-color: #eaeaea;
+  --card-bg: #ffffff;
+  --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  --highlight-bg: rgba(0, 196, 204, 0.1);
+  --accent-gradient: linear-gradient(135deg, #00c4cc, #7209b7);
+  --accent-color: #00c4cc;
+  --accent-secondary: #7209b7;
+  --sidebar-bg: #ffffff;
+  --navbar-bg: rgba(255, 255, 255, 0.95);
+  --menu-hover: rgba(0, 196, 204, 0.1);
+  --chart-colors: #00c4cc, #7209b7, #3a86ff, #fb5607, #ffbe0b;
+}
+
+/* Dark Mode Theme */
+.dark-mode {
+  --bg-primary: #1a1a1a;
+  --bg-secondary: #242424;
+  --bg-tertiary: #2a2a2a;
+  --text-primary: #f0f0f0;
+  --text-secondary: #cccccc;
+  --text-muted: #999999;
+  --border-color: #3a3a3a;
+  --card-bg: #242424;
+  --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  --highlight-bg: rgba(0, 196, 204, 0.15);
+  --accent-gradient: linear-gradient(135deg, #00c4cc, #7209b7);
+  --accent-color: #00c4cc;
+  --accent-secondary: #8a29d7;
+  --sidebar-bg: #242424;
+  --navbar-bg: rgba(26, 26, 26, 0.95);
+  --menu-hover: rgba(0, 196, 204, 0.2);
+  --chart-colors: #00c4cc, #7209b7, #3a86ff, #fb5607, #ffbe0b;
+}
+
+/* Global Styles */
+body {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Element Plus Theme Overrides */
+.dark-mode {
+  /* Card overrides */
+  .el-card {
+    background-color: var(--card-bg);
+    border-color: var(--border-color);
+    color: var(--text-primary);
+  }
+  
+  .el-card__header {
+    border-bottom-color: var(--border-color);
+  }
+  
+  /* Button overrides */
+  .el-button {
+    &.el-button--default {
+      background-color: var(--bg-tertiary);
+      border-color: var(--border-color);
+      color: var(--text-primary);
+      
+      &:hover, &:focus {
+        background-color: var(--bg-secondary);
+        border-color: var(--accent-color);
+        color: var(--accent-color);
+      }
+    }
+  }
+  
+  /* Input overrides */
+  .el-input__inner, 
+  .el-textarea__inner {
+    background-color: var(--bg-tertiary);
+    border-color: var(--border-color);
+    color: var(--text-primary);
+    
+    &:focus, &:hover {
+      border-color: var(--accent-color);
+    }
+  }
+  
+  /* Dropdown overrides */
+  .el-dropdown-menu {
+    background-color: var(--card-bg);
+    border-color: var(--border-color);
+  }
+  
+  .el-dropdown-menu__item {
+    color: var(--text-primary);
+    
+    &:hover {
+      background-color: var(--bg-tertiary);
+    }
+  }
+  
+  /* Menu overrides */
+  .el-menu {
+    background-color: var(--bg-primary);
+    border-color: var(--border-color);
+  }
+  
+  .el-menu-item {
+    color: var(--text-primary);
+    
+    &:hover, &.is-active {
+      background-color: var(--menu-hover);
+    }
+  }
+  
+  /* Dialog overrides */
+  .el-dialog {
+    background-color: var(--card-bg);
+  }
+  
+  .el-dialog__title {
+    color: var(--text-primary);
+  }
+  
+  /* Table overrides */
+  .el-table {
+    background-color: var(--card-bg);
+    color: var(--text-primary);
+    
+    th, td {
+      background-color: var(--card-bg);
+      border-bottom-color: var(--border-color);
+    }
+    
+    .el-table__header-wrapper th {
+      background-color: var(--bg-tertiary);
+      color: var(--text-primary);
+    }
+  }
+  
+  /* Form overrides */
+  .el-form-item__label {
+    color: var(--text-secondary);
+  }
+  
+  /* Select overrides */
+  .el-select-dropdown {
+    background-color: var(--card-bg);
+    border-color: var(--border-color);
+  }
+  
+  .el-select-dropdown__item {
+    color: var(--text-primary);
+    
+    &.selected, &:hover {
+      background-color: var(--highlight-bg);
+    }
+  }
+  
+  /* Date picker overrides */
+  .el-date-picker {
+    background-color: var(--card-bg);
+    color: var(--text-primary);
+  }
+  
+  .el-date-table td {
+    color: var(--text-primary);
+  }
+  
+  /* Pagination overrides */
+  .el-pagination {
+    color: var(--text-secondary);
+    
+    button {
+      background-color: var(--bg-tertiary);
+      color: var(--text-secondary);
+    }
+  }
+}
+
+/* Compact View */
+.compact-view {
+  .el-card {
+    margin-bottom: 15px;
+  }
+  
+  .el-card__body {
+    padding: 12px;
+  }
+  
+  .settings-section {
+    margin-bottom: 15px;
+  }
+  
+  .feature-item, .setting-item {
+    padding-bottom: 12px;
+    margin-bottom: 12px;
+  }
+  
+  .el-form-item {
+    margin-bottom: 12px;
+  }
+}

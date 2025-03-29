@@ -13,9 +13,12 @@
             placeholder="Select Month"
             @change="handleMonthChange"
           />
-          <el-tag type="info" class="budget-tag">
-            Monthly Budget: ₹{{ formatAmount(monthlyBudget) }}
-          </el-tag>
+          <div class="budget-container">
+            <el-tag type="info" class="budget-tag" @click="showBudgetDialog">
+              Monthly Budget: ₹{{ formatAmount(monthlyBudget) }}
+              <i class="bi bi-pencil-square ms-2"></i>
+            </el-tag>
+          </div>
     </div>
 
     <!-- Budget Progress -->
@@ -111,7 +114,65 @@
         </el-timeline-item>
       </el-timeline>
     </div>
+
+    <!-- Savings Goals -->
+    <div class="savings-goals" v-if="isSavingsGoalsEnabled">
+      <div class="section-header">
+        <h3>Savings Goals</h3>
+        <router-link to="/settings">
+          <el-button type="primary" plain size="small">Manage Goals</el-button>
+        </router-link>
+      </div>
+      <el-progress 
+        :percentage="overallSavingsProgress"
+        :status="getSavingsGoalsStatus()"
+        :stroke-width="20"
+        :format="formatSavingsGoalsProgress"
+      />
+      <div class="savings-goals-stats">
+        <div class="stat-item">
+          <span class="label">Total Savings</span>
+          <span class="value">₹{{ formatAmount(totalSavings) }}</span>
+        </div>
+        <div class="stat-item">
+          <span class="label">Total Goals</span>
+          <span class="value">{{ savingsGoals.length }}</span>
+        </div>
+        <div class="stat-item">
+          <span class="label">Target Amount</span>
+          <span class="value">₹{{ formatAmount(totalSavingsTarget) }}</span>
+        </div>
+      </div>
+    </div>
   </div>
+
+  <!-- Budget Edit Dialog -->
+  <el-dialog
+    v-model="showEditBudgetDialog"
+    title="Edit Monthly Budget"
+    width="400px"
+  >
+    <div>
+      <p class="text-muted mb-3">Set your target spending limit for each month</p>
+      <el-form>
+        <el-form-item label="Monthly Budget (₹)">
+          <el-input-number 
+            v-model="newBudgetAmount" 
+            :min="1000" 
+            :step="1000" 
+            controls-position="right"
+            style="width: 100%"
+          />
+        </el-form-item>
+      </el-form>
+    </div>
+    <template #footer>
+      <div class="dialog-footer">
+        <el-button @click="showEditBudgetDialog = false">Cancel</el-button>
+        <el-button type="primary" @click="updateBudget">Save</el-button>
+      </div>
+    </template>
+  </el-dialog>
 </template>
 
 <script setup lang="ts">
@@ -120,15 +181,28 @@ import { ElMessage } from 'element-plus';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
 import type { Expense } from '@/type/types';
+import { Feature, useFeatureFlags } from '@/utils/featureFlags';
+import { budgetApi, savingsGoalsApi, expenseApi } from '@/utils/api';
 
 const router = useRouter();
 const API_URL = import.meta.env.VITE_API_URL;
 
 // State
 const selectedMonth = ref(new Date());
-const monthlyBudget = ref(50000); // This should be fetched from user settings
+const monthlyBudget = ref<number>(0);
 const expenses = ref<Expense[]>([]);
 const isLoading = ref(false);
+const showEditBudgetDialog = ref(false);
+const newBudgetAmount = ref<number | null>(null);
+
+// Feature flags
+const { isFeatureEnabled } = useFeatureFlags();
+const isSavingsGoalsEnabled = computed(() => {
+  return localStorage.getItem('feature_savings_goals') === 'true';
+});
+
+// Savings goals data
+const savingsGoals = ref<any[]>([]);
 
 // Computed values
 const totalSpent = computed(() => {
@@ -208,36 +282,100 @@ const recentActivity = computed(() => {
     .slice(0, 5);
 });
 
-// Methods
-const fetchExpenses = async () => {
+// Load the monthly budget from API
+const loadBudget = async () => {
   try {
-    isLoading.value = true;
-    const startDate = new Date(selectedMonth.value.getFullYear(), selectedMonth.value.getMonth(), 1);
-    const endDate = new Date(selectedMonth.value.getFullYear(), selectedMonth.value.getMonth() + 1, 0);
-
-    const response = await axios.get(`${API_URL}/expenses`, {
-      params: {
-        startDate: startDate.toISOString(),
-        endDate: endDate.toISOString()
-      },
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`
-      }
-    });
-    expenses.value = response.data;
-  } catch (error: any) {
-    if (error.response?.status === 401) {
-      ElMessage.error('Please signup to view your summary');
-      router.push('/signup');
-    } else {
-      ElMessage.error('Failed to fetch expense data');
-      console.error('Error fetching expenses:', error);
-    }
-  } finally {
-    isLoading.value = false;
+    const budget = await budgetApi.getBudget(
+      selectedMonth.value.getMonth() + 1,
+      selectedMonth.value.getFullYear()
+    );
+    monthlyBudget.value = budget || 50000; // Default to ₹50,000 if no budget is set
+  } catch (error) {
+    console.error('Failed to load budget:', error);
+    // Fallback to localStorage
+    const savedBudget = localStorage.getItem('monthly_budget');
+    monthlyBudget.value = savedBudget ? parseInt(savedBudget) : 50000;
   }
 };
 
+// Update the budget
+const updateBudget = async () => {
+  if (!newBudgetAmount.value || newBudgetAmount.value < 1000) {
+    ElMessage.warning('Budget amount must be at least ₹1,000');
+    return;
+  }
+
+  try {
+    await budgetApi.saveBudget(
+      selectedMonth.value.getMonth() + 1, 
+      selectedMonth.value.getFullYear(), 
+      newBudgetAmount.value
+    );
+    
+    monthlyBudget.value = newBudgetAmount.value;
+    showEditBudgetDialog.value = false;
+    
+    // Also update localStorage as backup
+    localStorage.setItem('monthly_budget', monthlyBudget.value.toString());
+    
+    ElMessage.success('Budget updated successfully');
+  } catch (error) {
+    console.error('Failed to update budget:', error);
+    ElMessage.error('Failed to update budget. Using local storage instead.');
+    
+    // Fallback to local storage
+    monthlyBudget.value = newBudgetAmount.value;
+    localStorage.setItem('monthly_budget', monthlyBudget.value.toString());
+  }
+};
+
+// Load savings goals from API
+const loadSavingsGoals = async () => {
+  if (!isSavingsGoalsEnabled.value) return;
+  
+  try {
+    const goals = await savingsGoalsApi.getGoals();
+    
+    savingsGoals.value = goals.map((goal: any) => ({
+      ...goal,
+      targetDate: goal.targetDate ? new Date(goal.targetDate) : null,
+      startDate: new Date(goal.startDate),
+      deposits: goal.deposits?.map((deposit: any) => ({
+        ...deposit,
+        date: new Date(deposit.date)
+      })) || []
+    }));
+  } catch (error) {
+    console.error('Failed to load savings goals:', error);
+    
+    // Fallback to localStorage
+    try {
+      const savedGoals = localStorage.getItem('savings_goals');
+      if (savedGoals) {
+        const parsedGoals = JSON.parse(savedGoals);
+        savingsGoals.value = parsedGoals;
+      }
+    } catch (localError) {
+      console.error('Failed to load from localStorage:', localError);
+    }
+  }
+};
+
+// Fetch expenses
+const fetchExpenses = async () => {
+  try {
+    // Get expenses from API
+    const month = selectedMonth.value.getMonth() + 1;
+    const year = selectedMonth.value.getFullYear();
+    const response = await expenseApi.getExpenses(month, year);
+    expenses.value = response;
+  } catch (error) {
+    console.error('Failed to fetch expenses:', error);
+    expenses.value = []; // Clear expenses on error
+  }
+};
+
+// Methods
 const handleMonthChange = () => {
   fetchExpenses();
 };
@@ -302,29 +440,67 @@ const getActivityType = (category: string) => {
   return types[category] || 'primary';
 };
 
-// Setup axios interceptor for authentication
-axios.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
-);
-
-// Initialize data on mount
-onMounted(() => {
-  selectedMonth.value = new Date();
-  fetchExpenses();
+// Calculate total savings and progress
+const totalSavings = computed(() => {
+  return savingsGoals.value.reduce((sum, goal) => sum + goal.currentAmount, 0);
 });
 
-// Watch for changes in selected month
-watch(selectedMonth, () => {
-  fetchExpenses();
+const totalSavingsTarget = computed(() => {
+  return savingsGoals.value.reduce((sum, goal) => sum + goal.targetAmount, 0);
+});
+
+const overallSavingsProgress = computed(() => {
+  if (totalSavingsTarget.value === 0) return 0;
+  return Math.min(100, Math.round((totalSavings.value / totalSavingsTarget.value) * 100));
+});
+
+// Get savings goals status
+const getSavingsGoalsStatus = () => {
+  if (overallSavingsProgress.value >= 100) return 'success';
+  if (overallSavingsProgress.value >= 80) return 'warning';
+  return 'danger';
+};
+
+// Format savings goals progress
+const formatSavingsGoalsProgress = (percentage: number) => {
+  return `${percentage.toFixed(1)}%`;
+};
+
+// Show budget edit dialog
+const showBudgetDialog = () => {
+  newBudgetAmount.value = monthlyBudget.value;
+  showEditBudgetDialog.value = true;
+};
+
+// Watch for month changes
+watch(selectedMonth, async () => {
+  await loadBudget();
+  await fetchExpenses();
+});
+
+// Watch for authentication changes
+const token = ref(localStorage.getItem('token'));
+
+watch(() => localStorage.getItem('token'), (newToken) => {
+  token.value = newToken;
+  if (newToken) {
+    loadBudget();
+    loadSavingsGoals();
+    fetchExpenses();
+  } else {
+    monthlyBudget.value = 50000;
+    savingsGoals.value = [];
+    expenses.value = [];
+  }
+});
+
+// Initialize
+onMounted(async () => {
+  if (token.value) {
+    await loadBudget();
+    await loadSavingsGoals();
+    await fetchExpenses();
+  }
 });
 </script>
 
@@ -363,9 +539,25 @@ watch(selectedMonth, () => {
  }
 }
 
+.budget-container {
+  display: flex;
+  align-items: center;
+}
+
 .budget-tag {
   font-size: 1rem;
   padding: 8px 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.budget-tag:hover {
+  background-color: #e6f7ff;
+  border-color: #1890ff;
+}
+
+.text-muted {
+  color: #666;
 }
 
 .budget-section {
@@ -540,6 +732,43 @@ watch(selectedMonth, () => {
     font-weight: bold;
     color: #333;
   }
+}
+
+.savings-goals {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  margin-bottom: 32px;
+}
+
+.savings-goals h3 {
+  margin: 0 0 20px;
+  color: #333;
+}
+
+.savings-goals-stats {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.savings-goals-stats .stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.savings-goals-stats .stat-item .label {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.savings-goals-stats .stat-item .value {
+  color: #333;
+  font-weight: bold;
+  font-size: 1.1rem;
 }
 
 @media (max-width: 768px) {

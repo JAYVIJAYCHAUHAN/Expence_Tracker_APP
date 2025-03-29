@@ -1,5 +1,10 @@
 const demoRestrictions = async (req, res, next) => {
   try {
+    // Skip restrictions for authentication routes (login/register/etc)
+    if (req.path.includes('/auth/')) {
+      return next();
+    }
+
     // Skip restrictions for non-demo users
     if (!req.user || req.user.email !== 'demo@example.com') {
       return next();
@@ -35,7 +40,7 @@ const demoRestrictions = async (req, res, next) => {
       // Check expense limit for POST requests
       if (req.method === 'POST') {
         const Expense = require('../models/Expense');
-        const expenseCount = await Expense.countDocuments({ user: req.user._id });
+        const expenseCount = await Expense.countDocuments({ user: req.user.userId });
         
         if (expenseCount >= 10) {
           return res.status(403).json({
@@ -54,10 +59,9 @@ const demoRestrictions = async (req, res, next) => {
 
     next();
   } catch (error) {
-    res.status(500).json({
-      message: 'Error in demo restrictions',
-      error: error.message
-    });
+    console.error('Demo restrictions error:', error);
+    // Don't block the request on middleware errors, just log
+    next();
   }
 };
 

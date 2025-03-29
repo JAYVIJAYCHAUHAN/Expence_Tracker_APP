@@ -29,8 +29,14 @@
             <i class="bi bi-wallet2 nav-icon"></i>
           </el-menu-item>
         </el-tooltip>
+        <el-tooltip content="Settings" placement="bottom" effect="light">
+          <el-menu-item index="/settings" :route="{ name: 'Settings' }" class="nav-item">
+            <i class="bi bi-gear nav-icon"></i>
+          </el-menu-item>
+        </el-tooltip>
       </el-menu>
       <div class="nav-actions">
+        <NotificationCenter />
         <UserMenu />
       </div>
     </div>
@@ -58,8 +64,13 @@
           <i class="bi bi-wallet2 nav-icon"></i>
           <span>Expense</span>
         </el-menu-item>
+        <el-menu-item index="/settings" :route="{ name: 'Settings' }" class="sidebar-item">
+          <i class="bi bi-gear nav-icon"></i>
+          <span>Settings</span>
+        </el-menu-item>
       </el-menu>
       <div class="nav-actions-sidebar">
+        <NotificationCenter />
         <UserMenu />
       </div>
     </div>
@@ -76,6 +87,7 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref } from "vue";
 import UserMenu from '@/components/UserMenu.vue';
+import NotificationCenter from "@/components/NotificationCenter.vue";
 
 const isActive = ref(false);
 const isSmallScreen = ref(false);

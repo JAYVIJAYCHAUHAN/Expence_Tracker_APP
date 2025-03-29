@@ -8,22 +8,30 @@
       @login-success="handleLoginSuccess"
     />
     <PwaInstallPrompt />
-    <PwaUpdateNotification />
+    <PwaUpdateNotifier />
   </div>
 </template>
 
 <script setup lang="ts">
+import { provide } from 'vue';
 import { useLoginModal } from '@/composables/useLoginModal';
 import Login from '@/components/Login.vue';
 import PwaInstallPrompt from '@/components/PwaInstallPrompt.vue';
-import PwaUpdateNotification from '@/components/PwaUpdateNotification.vue';
+import PwaUpdateNotifier from '@/components/PwaUpdateNotifier.vue';
 import OfflineNotification from '@/components/OfflineNotification.vue';
 import { ElMessage } from 'element-plus';
 
-const { showLoginModal, closeLoginModal } = useLoginModal();
+// Initialize login modal state and provide to all components
+const loginModal = useLoginModal();
+const { showLoginModal, closeLoginModal, handleLoginSuccess: originalHandleLoginSuccess } = loginModal;
 
+// Export to globally provide login modal functions
+provide('loginModal', loginModal);
+
+// Enhanced login success handler
 const handleLoginSuccess = () => {
   ElMessage.success('Login successful');
+  originalHandleLoginSuccess();
 };
 </script>
 

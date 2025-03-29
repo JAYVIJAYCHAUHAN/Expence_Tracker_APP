@@ -2,7 +2,7 @@ const Expense = require('../models/Expense');
 
 const getExpenses = async (req, res) => {
   try {
-    const expenses = await Expense.find({ user: req.user._id })
+    const expenses = await Expense.find({ user: req.user.userId })
       .sort({ date: -1 });
     res.json(expenses);
   } catch (error) {
@@ -14,7 +14,7 @@ const createExpense = async (req, res) => {
   try {
     const expense = new Expense({
       ...req.body,
-      user: req.user._id
+      user: req.user.userId
     });
     await expense.save();
     res.status(201).json(expense);
@@ -26,7 +26,7 @@ const createExpense = async (req, res) => {
 const updateExpense = async (req, res) => {
   try {
     const expense = await Expense.findOneAndUpdate(
-      { _id: req.params.id, user: req.user._id },
+      { _id: req.params.id, user: req.user.userId },
       req.body,
       { new: true }
     );
@@ -45,7 +45,7 @@ const deleteExpense = async (req, res) => {
   try {
     const expense = await Expense.findOneAndDelete({
       _id: req.params.id,
-      user: req.user._id
+      user: req.user.userId
     });
     
     if (!expense) {
@@ -67,7 +67,7 @@ const getExpensesByDateRange = async (req, res) => {
     }
 
     const expenses = await Expense.find({
-      user: req.user._id,
+      user: req.user.userId,
       date: {
         $gte: new Date(startDate),
         $lte: new Date(endDate)
@@ -83,7 +83,7 @@ const getExpensesByDateRange = async (req, res) => {
 const getExpensesByCategory = async (req, res) => {
   try {
     const expenses = await Expense.aggregate([
-      { $match: { user: req.user._id } },
+      { $match: { user: req.user.userId } },
       { $group: {
           _id: '$category',
           total: { $sum: '$amount' },
