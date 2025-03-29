@@ -18,7 +18,7 @@
           />
           <div class="text-right">  
           <el-button type="primary" @click="generateReport">
-            <i class="bi bi-download me-2"></i> Export Report
+            <i class="bi bi-file-pdf me-2"></i>  Download PDF Report
           </el-button>
           </div>
     </div>
@@ -81,7 +81,7 @@
               </el-radio-group>
             </div>
             <div class="chart-container">
-              <LineChart :data="trendData" />
+              <LineChart :data="trendData" ref="lineChartRef" />
             </div>
           </div>
         </el-col>
@@ -91,7 +91,7 @@
               <h3>Category Distribution</h3>
             </div>
             <div class="chart-container">
-              <PieChart :data="categoryData" />
+              <PieChart :data="categoryData" ref="pieChartRef" />
             </div>
           </div>
         </el-col>
@@ -131,6 +131,8 @@ import LineChart from '@/components/charts/LineChart.vue';
 import PieChart from '@/components/charts/PieChart.vue';
 import axios from 'axios';
 import type { CategoryData, Expense, TrendData } from '@/type/types';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 const router = useRouter();
 const API_URL =  import.meta.env.VITE_API_URL;
@@ -180,6 +182,10 @@ const expenses = ref<Expense[]>([]);
 const trendData = ref<TrendData[]>([]);
 const categoryData = ref<CategoryData[]>([]);
 const recentTransactions = ref<Expense[]>([]);
+
+// Add refs for chart components
+const lineChartRef = ref<InstanceType<typeof LineChart> | null>(null);
+const pieChartRef = ref<InstanceType<typeof PieChart> | null>(null);
 
 // Fetch expenses for the selected date range
 const fetchExpenses = async () => {
@@ -331,30 +337,245 @@ const getCategoryType = (category: string) => {
   return types[category] || 'default';
 };
 
-// Generate and download report
+// Generate and download report as PDF
 const generateReport = () => {
-  // Implementation for report generation
-  const reportData = {
-    dateRange: dateRange.value.map(date => formatDate(date.toISOString())),
-    totalExpenses: totalExpenses.value,
-    averageDaily: averageDaily.value,
-    topCategory: topCategory.value,
-    categoryDistribution: categoryData.value,
-    recentTransactions: recentTransactions.value
-  };
+  // Create a new jsPDF instance
+  const doc = new jsPDF();
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const pageHeight = doc.internal.pageSize.getHeight();
+  
+  // Add a subtle background gradient to the first page
+  const grd = doc.setFillColor(240, 240, 250);
+  doc.rect(0, 0, pageWidth, pageHeight, 'F');
+  
+  // Set fonts and formatting
+  doc.setFontSize(24);
+  doc.setTextColor(0, 130, 150);
+  doc.text("Expense Tracker Report", pageWidth / 2, 20, { align: 'center' });
+  
+  // Add logo/branding
+  doc.setDrawColor(0, 196, 204);
+  doc.setLineWidth(1);
+  doc.line(20, 25, pageWidth - 20, 25);
+  
+  // Add date range
+  doc.setFontSize(11);
+  doc.setTextColor(80, 80, 80);
+  const dateRangeText = `Date Range: ${formatDate(dateRange.value[0].toISOString())} to ${formatDate(dateRange.value[1].toISOString())}`;
+  doc.text(dateRangeText, pageWidth / 2, 32, { align: 'center' });
+  
+  // Add summary section
+  doc.setFillColor(240, 250, 250);
+  doc.roundedRect(14, 40, pageWidth - 28, 40, 3, 3, 'F');
+  
+  doc.setFontSize(14);
+  doc.setTextColor(0, 130, 150);
+  doc.text("Summary", 20, 50);
+  
+  doc.setFontSize(10);
+  doc.setTextColor(60, 60, 60);
+  doc.setFont('helvetica', 'bold');
+  doc.text("Total Expenses:", 25, 60);
+  doc.text("Average Daily:", 25, 70);
+  doc.text("Top Category:", 25, 80);
+  
+  // Summary values with better right alignment
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(80, 80, 80);
+  doc.text(`₹${formatAmount(totalExpenses.value)}`, 110, 60);
+  doc.text(`₹${formatAmount(averageDaily.value)}`, 110, 70);
+  doc.text(`${topCategory.value.name} (₹${formatAmount(topCategory.value.amount)})`, 110, 80);
+  
+  // Add trend indicator
+  if (expenseTrend.value !== 0) {
+    const trendColor = expenseTrend.value < 0 ? [40, 167, 69] : [220, 53, 69];
+    const trendIcon = expenseTrend.value < 0 ? '↓' : '↑';
+    const trendText = `${trendIcon} ${Math.abs(expenseTrend.value).toFixed(1)}% from last period`;
+    
+    doc.setTextColor(trendColor[0], trendColor[1], trendColor[2]);
+    doc.text(trendText, 140, 60);
+  }
+  
+  // Add trend chart if available
+  if (lineChartRef.value) {
+    const trendChartImage = lineChartRef.value.getChartImage();
+    if (trendChartImage) {
+      // Add a subtle background for the chart
+      doc.setFillColor(250, 250, 255);
+      doc.roundedRect(14, 90, pageWidth - 28, 90, 3, 3, 'F');
+      
+      doc.setFontSize(14);
+      doc.setTextColor(0, 130, 150);
+      doc.text("Expense Trend", 20, 100);
+      
+      doc.addImage(trendChartImage, 'PNG', 20, 105, 170, 70);
+    }
+  }
+  
+  // Add pie chart if available
+  if (pieChartRef.value) {
+    const pieChartImage = pieChartRef.value.getChartImage();
+    if (pieChartImage) {
+      // Add a subtle background for the chart
+      doc.setFillColor(250, 250, 255);
+      doc.roundedRect(14, 190, pageWidth - 28, 90, 3, 3, 'F');
+      
+      doc.setFontSize(14);
+      doc.setTextColor(0, 130, 150);
+      doc.text("Category Distribution", 20, 200);
+      
+      doc.addImage(pieChartImage, 'PNG', 50, 205, 110, 70);
+    }
+  }
+  
+  // Add a new page for more details
+  doc.addPage();
+  
+  // Add a light background to the second page
+  doc.setFillColor(248, 248, 252);
+  doc.rect(0, 0, pageWidth, pageHeight, 'F');
+  
+  // Add header to the second page
+  doc.setFontSize(20);
+  doc.setTextColor(0, 130, 150);
+  doc.text("Expense Details", pageWidth / 2, 20, { align: 'center' });
+  
+  doc.setDrawColor(0, 196, 204);
+  doc.setLineWidth(0.5);
+  doc.line(20, 25, pageWidth - 20, 25);
+  
+  // Create a table for category distribution
+  doc.setFontSize(14);
+  doc.setTextColor(0, 130, 150);
+  doc.text("Category Details", 20, 40);
+  
+  const categoryRows = categoryData.value.map(category => [
+    category.name,
+    { content: `₹${formatAmount(category.value)}`, styles: { halign: 'right' as const } },
+    { content: `${((category.value / totalExpenses.value) * 100).toFixed(1)}%`, styles: { halign: 'right' as const } }
+  ]);
+  
+  autoTable(doc, {
+    head: [
+      [
+        { content: 'Category', styles: { halign: 'left' as const } },
+        { content: 'Amount', styles: { halign: 'right' as const } },
+        { content: 'Percentage', styles: { halign: 'right' as const } }
+      ]
+    ],
+    body: categoryRows,
+    startY: 45,
+    theme: 'grid',
+    headStyles: {
+      fillColor: [0, 150, 180],
+      textColor: [255, 255, 255],
+      fontStyle: 'bold',
+      lineWidth: 0.1,
+      lineColor: [0, 0, 0]
+    },
+    styles: {
+      cellPadding: 6,
+      fontSize: 10,
+      overflow: 'linebreak',
+      lineColor: [220, 220, 220]
+    },
+    columnStyles: {
+      0: { cellWidth: 80 },
+      1: { cellWidth: 60 },
+      2: { cellWidth: 50 }
+    },
+    alternateRowStyles: {
+      fillColor: [248, 248, 255]
+    },
+    margin: { left: 20, right: 20 }
+  });
+  
+  // Add recent transactions table
+  let startY = 45;
+  // Check if the autoTable plugin has set a finalY value
+  // @ts-ignore - accessing jspdf-autotable's added property
+  if (doc.lastAutoTable && doc.lastAutoTable.finalY) {
+    // @ts-ignore
+    startY = doc.lastAutoTable.finalY + 20;
+  }
 
-  // Create a Blob with the report data
-  const blob = new Blob([JSON.stringify(reportData, null, 2)], { type: 'application/json' });
-  const url = window.URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `expense-report-${new Date().toISOString().split('T')[0]}.json`;
-  document.body.appendChild(a);
-  a.click();
-  window.URL.revokeObjectURL(url);
-  document.body.removeChild(a);
+  doc.setFontSize(14);
+  doc.setTextColor(0, 130, 150);
+  doc.text("Recent Transactions", 20, startY);
 
-  ElMessage.success('Report downloaded successfully');
+  const transactionRows = recentTransactions.value.map(transaction => [
+    formatDate(transaction.date),
+    transaction.category,
+    transaction.description,
+    { content: `₹${formatAmount(transaction.amount)}`, styles: { halign: 'right' as const } }
+  ]);
+
+  autoTable(doc, {
+    head: [
+      [
+        { content: 'Date', styles: { halign: 'left' as const } },
+        { content: 'Category', styles: { halign: 'left' as const } },
+        { content: 'Description', styles: { halign: 'left' as const } },
+        { content: 'Amount', styles: { halign: 'right' as const } }
+      ]
+    ],
+    body: transactionRows,
+    startY: startY + 5,
+    theme: 'grid',
+    headStyles: {
+      fillColor: [0, 150, 180],
+      textColor: [255, 255, 255],
+      fontStyle: 'bold',
+      lineWidth: 0.1,
+      lineColor: [0, 0, 0]
+    },
+    styles: {
+      cellPadding: 6,
+      fontSize: 9,
+      overflow: 'linebreak',
+      lineColor: [220, 220, 220]
+    },
+    columnStyles: {
+      0: { cellWidth: 30 },
+      1: { cellWidth: 50 },
+      2: { cellWidth: 'auto' },
+      3: { cellWidth: 40 }
+    },
+    alternateRowStyles: {
+      fillColor: [248, 248, 255]
+    },
+    margin: { left: 20, right: 20 }
+  });
+  
+  // Add footer with date and page numbers
+  const totalPages = doc.getNumberOfPages();
+  for (let i = 1; i <= totalPages; i++) {
+    doc.setPage(i);
+    
+    // Footer line
+    doc.setDrawColor(200, 200, 200);
+    doc.setLineWidth(0.5);
+    doc.line(20, pageHeight - 20, pageWidth - 20, pageHeight - 20);
+    
+    // Footer text
+    doc.setFontSize(8);
+    doc.setTextColor(120, 120, 120);
+    const today = new Date().toLocaleDateString('en-IN', { 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
+    });
+    doc.text(`Generated on ${today} | Expense Tracker App`, 20, pageHeight - 10);
+    
+    // Page numbers
+    doc.text(`Page ${i} of ${totalPages}`, pageWidth - 20, pageHeight - 10, { align: 'right' });
+  }
+  
+  // Save the PDF
+  const fileName = `expense-report-${new Date().toISOString().split('T')[0]}.pdf`;
+  doc.save(fileName);
+  
+  ElMessage.success('PDF report downloaded successfully');
 };
 
 // Setup axios interceptor for authentication
@@ -421,8 +642,9 @@ watch(trendTimeframe, () => {
 
 .filter-section {
  display:grid;
- grid-template-columns: 300px auto;
+ grid-template-columns: 290px auto;
  column-gap:16px;
+ align-items:center;
  @media (max-width:768px) {
   grid-template-columns:300px;
   row-gap:8px;

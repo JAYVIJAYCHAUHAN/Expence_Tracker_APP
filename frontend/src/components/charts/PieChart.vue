@@ -1,107 +1,134 @@
 <template>
-  <div class="pie-chart">
-    <canvas ref="chartCanvas"></canvas>
-  </div>
+  <div ref="chartContainer" class="chart-container"></div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue';
-import Chart from 'chart.js/auto';
+import { ref, onMounted, watch, defineExpose } from 'vue';
+import * as echarts from 'echarts/core';
+import { PieChart as PieChartComponent } from 'echarts/charts';
+import {
+  TitleComponent,
+  TooltipComponent,
+  LegendComponent
+} from 'echarts/components';
+import { CanvasRenderer } from 'echarts/renderers';
 
-const props = defineProps<{
-  data: { name: string; value: number }[];
-}>();
+echarts.use([
+  TitleComponent,
+  TooltipComponent,
+  LegendComponent,
+  PieChartComponent,
+  CanvasRenderer
+]);
 
-const chartCanvas = ref<HTMLCanvasElement | null>(null);
-let chart: Chart | null = null;
+const props = defineProps({
+  data: {
+    type: Array,
+    required: true
+  }
+});
 
-const colors = [
-  '#00c4cc',
-  '#7209b7',
-  '#ff9f43',
-  '#ea5455',
-  '#28c76f',
-  '#336ad7'
-];
+const chartContainer = ref<HTMLElement | null>(null);
+let chart: echarts.ECharts | null = null;
 
-const createChart = () => {
-  if (!chartCanvas.value) return;
+const initChart = () => {
+  if (!chartContainer.value) return;
+  
+  chart = echarts.init(chartContainer.value);
+  updateChart();
 
-  const ctx = chartCanvas.value.getContext('2d');
-  if (!ctx) return;
-
-  chart = new Chart(ctx, {
-    type: 'doughnut',
-    data: {
-      labels: props.data.map(item => item.name),
-      datasets: [{
-        data: props.data.map(item => item.value),
-        backgroundColor: colors,
-        borderColor: '#fff',
-        borderWidth: 2,
-        hoverOffset: 10
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      cutout: '60%',
-      plugins: {
-        legend: {
-          position: 'right',
-          labels: {
-            padding: 20,
-            usePointStyle: true,
-            pointStyle: 'circle',
-            font: {
-              size: 12
-            }
-          }
-        },
-        tooltip: {
-          backgroundColor: 'rgba(255, 255, 255, 0.9)',
-          titleColor: '#333',
-          bodyColor: '#666',
-          bodyFont: {
-            size: 14
-          },
-          padding: 12,
-          borderColor: '#eee',
-          borderWidth: 1,
-          displayColors: false,
-          callbacks: {
-            label: (context) => {
-              const value = context.parsed;
-              const total = context.dataset.data.reduce((a: number, b: number) => a + b, 0);
-              const percentage = ((value * 100) / total).toFixed(1);
-              return `₹${value.toLocaleString('en-IN')} (${percentage}%)`;
-            }
-          }
-        }
-      }
-    }
+  window.addEventListener('resize', () => {
+    chart?.resize();
   });
 };
 
 const updateChart = () => {
   if (!chart) return;
 
-  chart.data.labels = props.data.map(item => item.name);
-  chart.data.datasets[0].data = props.data.map(item => item.value);
-  chart.update();
+  const colors = [
+    '#00c4cc', '#7209b7', '#ff9f43', '#28c76f', '#ea5455',
+    '#5a8dee', '#af72eb', '#ff6b6b', '#2dce89', '#ff8f5e'
+  ];
+
+  const option = {
+    tooltip: {
+      trigger: 'item',
+      formatter: '{b}: ₹{c} ({d}%)'
+    },
+    legend: {
+      orient: 'vertical',
+      left: 'left',
+      top: 'center',
+      textStyle: {
+        fontSize: 12
+      }
+    },
+    series: [
+      {
+        name: 'Expenses',
+        type: 'pie',
+        radius: ['40%', '70%'],
+        center: ['65%', '50%'],
+        avoidLabelOverlap: false,
+        itemStyle: {
+          borderRadius: 10,
+          borderColor: '#fff',
+          borderWidth: 2
+        },
+        label: {
+          show: false
+        },
+        emphasis: {
+          label: {
+            show: true,
+            fontSize: '12',
+            fontWeight: 'bold'
+          }
+        },
+        labelLine: {
+          show: false
+        },
+        data: props.data.map((item: any, index: number) => ({
+          value: item.value,
+          name: item.name,
+          itemStyle: {
+            color: colors[index % colors.length]
+          }
+        }))
+      }
+    ]
+  };
+
+  chart.setOption(option);
 };
 
+// Get chart as base64 image
+const getChartImage = () => {
+  if (!chart) return '';
+  return chart.getDataURL({
+    pixelRatio: 2,
+    backgroundColor: '#fff'
+  });
+};
+
+// Re-render chart when data changes
 watch(() => props.data, () => {
   updateChart();
 }, { deep: true });
 
+// Initialize chart on component mount
 onMounted(() => {
-  createChart();
+  initChart();
+});
+
+// Expose methods to parent component
+defineExpose({
+  getChartImage
 });
 </script>
 
 <style scoped>
-.pie-chart {
+.chart-container {
   width: 100%;
   height: 100%;
 }
