@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Create PWA Icons</title>
+</head>
+<body>
+  <h1>PWA Icon Generator</h1>
+  <canvas id="canvas192" width="192" height="192" style="border:1px solid #000; margin-bottom: 10px;"></canvas>
+  <br>
+  <canvas id="canvas512" width="512" height="512" style="border:1px solid #000; margin-bottom: 10px;"></canvas>
+  <br>
+  <button onclick="downloadIcons()">Download Icons</button>
+
+  <script>
+    function drawIcon(canvas, size, text) {
+      const ctx = canvas.getContext('2d');
+      
+      // Create gradient background
+      const gradient = ctx.createLinearGradient(0, 0, size, size);
+      gradient.addColorStop(0, '#00c4cc');
+      gradient.addColorStop(1, '#7209b7');
+      
+      // Fill background
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, size, size);
+      
+      // Add text
+      ctx.fillStyle = 'white';
+      ctx.font = `bold ${size/4}px Arial`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('ET', size/2, size/2);
+      
+      // Add border
+      ctx.strokeStyle = 'white';
+      ctx.lineWidth = size/32;
+      ctx.strokeRect(size/16, size/16, size - size/8, size - size/8);
+    }
+    
+    function downloadCanvas(canvas, filename) {
+      const link = document.createElement('a');
+      link.download = filename;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    }
+    
+    function downloadIcons() {
+      const canvas192 = document.getElementById('canvas192');
+      const canvas512 = document.getElementById('canvas512');
+      
+      downloadCanvas(canvas192, 'pwa-192x192.png');
+      downloadCanvas(canvas512, 'pwa-512x512.png');
+      downloadCanvas(canvas512, 'pwa-maskable-512x512.png');
+    }
+    
+    // Draw icons when page loads
+    window.onload = function() {
+      drawIcon(document.getElementById('canvas192'), 192, 'ET');
+      drawIcon(document.getElementById('canvas512'), 512, 'ET');
+    }
+  </script>
+</body>
+</html> 

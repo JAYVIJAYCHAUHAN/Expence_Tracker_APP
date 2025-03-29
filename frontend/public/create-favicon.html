@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Create Favicon</title>
+</head>
+<body>
+  <h1>Favicon Generator</h1>
+  <canvas id="canvas32" width="32" height="32" style="border:1px solid #000; margin-bottom: 10px;"></canvas>
+  <br>
+  <button onclick="downloadIcon()">Download Favicon</button>
+
+  <script>
+    function drawIcon(canvas, size) {
+      const ctx = canvas.getContext('2d');
+      
+      // Create gradient background
+      const gradient = ctx.createLinearGradient(0, 0, size, size);
+      gradient.addColorStop(0, '#00c4cc');
+      gradient.addColorStop(1, '#7209b7');
+      
+      // Fill background
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, size, size);
+      
+      // Add text
+      ctx.fillStyle = 'white';
+      ctx.font = `bold ${size/2}px Arial`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('E', size/2, size/2);
+    }
+    
+    function downloadCanvas(canvas, filename) {
+      const link = document.createElement('a');
+      link.download = filename;
+      link.href = canvas.toDataURL('image/x-icon');
+      link.click();
+    }
+    
+    function downloadIcon() {
+      const canvas32 = document.getElementById('canvas32');
+      downloadCanvas(canvas32, 'favicon.ico');
+    }
+    
+    // Draw icon when page loads
+    window.onload = function() {
+      drawIcon(document.getElementById('canvas32'), 32);
+    }
+  </script>
+</body>
+</html> 

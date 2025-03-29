@@ -16,3 +16,15 @@ export interface CategoryData {
   name: string;
   value: number;
 }
+export interface Subscription {
+  status: string;
+  plan: string;
+  endDate: string;
+  startDate: string;
+  paymentMethod: string;
+  amount: number;
+  currency: string;
+  interval: string;
+  trialPeriod: string;
+  
+}

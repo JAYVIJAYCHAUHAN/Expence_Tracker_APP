@@ -208,17 +208,18 @@
 import { ref, computed, onMounted } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import axios from 'axios';
+import { Subscription } from '@/type/types';
 
 // State
-const currentSubscription = ref(null);
-const subscriptionHistory = ref([]);
+const currentSubscription = ref<Subscription | null>(null);
+const subscriptionHistory = ref<Subscription[]>([]);
 const showPaymentDialog = ref(false);
-const selectedPlan = ref(null);
+const selectedPlan = ref<string | null>(null);
 const processing = ref(false);
 const paymentDetails = ref({
-  cardNumber: '',
-  expiry: '',
-  cvv: ''
+  cardNumber: "",
+  expiry: "",
+  cvv: ""
 });
 
 // API URL
@@ -270,7 +271,7 @@ const processPayment = async () => {
     
     // Here you would typically integrate with a payment gateway
     // For now, we'll simulate a payment
-    const paymentDetails = {
+    const paymentInfo = {
       amount: getPlanPrice(selectedPlan.value),
       cardNumber: paymentDetails.value.cardNumber,
       expiry: paymentDetails.value.expiry
@@ -280,7 +281,7 @@ const processPayment = async () => {
       `${API_URL}/subscription/subscribe`,
       {
         plan: selectedPlan.value,
-        paymentDetails
+        paymentDetails: paymentInfo
       },
       {
         headers: {
