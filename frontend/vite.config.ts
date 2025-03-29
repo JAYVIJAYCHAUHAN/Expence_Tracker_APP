@@ -19,7 +19,7 @@ export default defineConfig({
         background_color: '#ffffff',
         icons: [
           {
-            src: 'pwa-192x192.png',
+            src: 'apple-touch-icon.png',
             sizes: '192x192',
             type: 'image/png'
           },
