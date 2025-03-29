@@ -13,20 +13,20 @@
     </div>
 
     <div v-else class="goals-list">
-      <el-card v-for="goal in goals" :key="goal.id" class="goal-card">
+      <el-card v-for="goal in goals" :key="goal.id" class="goal-card" :class="{ 'completed-goal': goal.isCompleted }">
         <div class="goal-header">
           <div class="goal-icon">
             <i :class="goal.icon || 'bi bi-piggy-bank'"></i>
           </div>
           <div class="goal-title">
-            <h3>{{ goal.name }}</h3>
+            <h3>{{ goal.name }} <span v-if="goal.isCompleted" class="completed-badge"><i class="bi bi-check-circle-fill"></i> Completed</span></h3>
             <div class="goal-meta">
               <span>Target: ₹{{ formatNumber(goal.targetAmount) }}</span>
               <span>Deadline: {{ formatDate(goal.targetDate) }}</span>
             </div>
           </div>
           <div class="goal-actions">
-            <el-dropdown trigger="click" @command="(cmd) => handleCommand(cmd, goal)">
+            <el-dropdown trigger="click" @command="(cmd: string) => handleCommand(cmd, goal)">
               <el-button type="text">
                 <i class="bi bi-three-dots-vertical"></i>
               </el-button>
@@ -55,7 +55,7 @@
           
           <el-progress 
             :percentage="calculateProgress(goal)" 
-            :format="(p) => `${p.toFixed(0)}%`"
+            :format="(p: number) => `${p.toFixed(0)}%`"
             :color="getProgressColor(goal)"
           ></el-progress>
           
@@ -208,6 +208,7 @@ interface SavingsGoal {
   icon: string;
   description?: string;
   deposits: Deposit[];
+  isCompleted?: boolean;
 }
 
 interface Deposit {
@@ -230,7 +231,8 @@ const currentGoal = ref<SavingsGoal>({
   targetDate: null,
   startDate: new Date(),
   icon: 'bi bi-piggy-bank',
-  deposits: []
+  deposits: [],
+  isCompleted: false
 });
 const depositAmount = ref({
   amount: 1000,
@@ -402,7 +404,8 @@ const showAddGoalDialog = () => {
     targetDate: new Date(new Date().setMonth(new Date().getMonth() + 12)), // Default to 1 year from now
     startDate: new Date(),
     icon: 'bi bi-piggy-bank',
-    deposits: []
+    deposits: [],
+    isCompleted: false
   };
   dialogVisible.value = true;
 };
@@ -514,7 +517,7 @@ const addDeposit = async () => {
       
       // Update completion status if provided
       if (result.isCompleted !== undefined) {
-        goals.value[goalIndex].isCompleted = result.isCompleted;
+        goals.value[goalIndex].isCompleted  = result.isCompleted;
       }
     } else {
       // Fallback if API call worked but returned no data
@@ -537,6 +540,9 @@ const addDeposit = async () => {
     
     // Check if goal is completed
     if (goals.value[goalIndex].currentAmount >= goals.value[goalIndex].targetAmount) {
+      // Set the completed flag
+      goals.value[goalIndex].isCompleted = true;
+      
       ElMessage.success({
         message: `Congratulations! You've reached your goal: ${goals.value[goalIndex].name}`,
         duration: 5000
@@ -644,6 +650,7 @@ onMounted(async () => {
           startDate: new Date(),
           icon: 'bi bi-piggy-bank',
           description: 'Building a 3-month emergency fund for unexpected expenses',
+          isCompleted: false,
           deposits: [
             {
               id: `deposit_${Date.now()}`,
@@ -801,6 +808,29 @@ onMounted(async () => {
   color: var(--text-secondary, #666);
   border-top: 1px solid var(--border-color, #eaeaea);
   font-style: italic;
+}
+
+.completed-goal {
+  border: 2px solid #4caf50;
+  box-shadow: 0 0 10px rgba(76, 175, 80, 0.2);
+}
+
+.completed-badge {
+  display: inline-flex;
+  align-items: center;
+  background-color: #4caf50;
+  color: white;
+  font-size: 0.7rem;
+  padding: 2px 6px;
+  border-radius: 10px;
+  margin-left: 8px;
+  font-weight: normal;
+  vertical-align: middle;
+}
+
+.completed-badge i {
+  margin-right: 3px;
+  font-size: 0.8rem;
 }
 
 @media (max-width: 768px) {
