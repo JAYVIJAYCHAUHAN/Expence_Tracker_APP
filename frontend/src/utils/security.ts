@@ -23,13 +23,21 @@ const SENSITIVE_FIELDS = [
  * @param data Object to sanitize
  * @returns Sanitized object with sensitive fields redacted
  */
-export function sanitizeData(data: any): any {
-  if (!data) return data;
+export function sanitizeData(data: any, seen = new WeakMap()): any {
+  // Handle null or non-object values
+  if (!data || typeof data !== 'object') return data;
   
-  if (typeof data !== 'object') return data;
+  // Handle circular references
+  if (seen.has(data)) {
+    return '[Circular Reference]';
+  }
   
+  // Add current object to seen map
+  seen.set(data, true);
+  
+  // Handle arrays
   if (Array.isArray(data)) {
-    return data.map(item => sanitizeData(item));
+    return data.map(item => sanitizeData(item, seen));
   }
   
   const sanitized = { ...data };
@@ -38,7 +46,7 @@ export function sanitizeData(data: any): any {
     if (SENSITIVE_FIELDS.includes(key.toLowerCase())) {
       sanitized[key] = '[REDACTED]';
     } else if (typeof sanitized[key] === 'object' && sanitized[key] !== null) {
-      sanitized[key] = sanitizeData(sanitized[key]);
+      sanitized[key] = sanitizeData(sanitized[key], seen);
     }
   }
   
@@ -86,11 +94,17 @@ export function setupSecureLogging(): void {
  */
 export function sanitizeRequestData(config: any): any {
   if (config.data) {
-    const sanitizedData = sanitizeData(JSON.parse(JSON.stringify(config.data)));
-    return {
-      ...config,
-      data: sanitizedData
-    };
+    try {
+      const sanitizedData = sanitizeData(JSON.parse(JSON.stringify(config.data)));
+      return {
+        ...config,
+        data: sanitizedData
+      };
+    } catch (error) {
+      // If JSON serialization fails (e.g., circular references), return original config
+      console.warn('Could not sanitize request data:', error);
+      return config;
+    }
   }
   return config;
 }

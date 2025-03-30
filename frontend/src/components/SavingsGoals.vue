@@ -86,6 +86,11 @@
       v-model="dialogVisible"
       :title="isEditing ? 'Edit Savings Goal' : 'Add New Savings Goal'"
       width="500px"
+      class="goal-dialog"
+      :fullscreen="windowWidth < 768"
+      :close-on-click-modal="false"
+      :destroy-on-close="true"
+      :append-to-body="true"
     >
       <el-form :model="currentGoal" label-position="top" ref="goalForm" :rules="rules">
         <el-form-item label="Goal Name" prop="name">
@@ -136,6 +141,10 @@
           </el-select>
         </el-form-item>
         
+        <el-form-item label="Color" prop="color">
+          <el-color-picker v-model="currentGoal.color" show-alpha></el-color-picker>
+        </el-form-item>
+        
         <el-form-item label="Description (Optional)">
           <el-input 
             v-model="currentGoal.description" 
@@ -158,7 +167,10 @@
       title="Add Deposit"
       width="400px"
       class="deposit-dialog"
+      :fullscreen="windowWidth < 768"
       :close-on-click-modal="false"
+      :destroy-on-close="true"
+      :append-to-body="true"
     >
       <el-form :model="depositAmount" label-position="top" ref="depositForm">
         <el-form-item label="Deposit Amount (₹)" prop="amount">
@@ -196,7 +208,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue';
+import { ref, computed, onMounted, watch, nextTick, onUnmounted, onBeforeUnmount } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import type { FormInstance, FormRules } from 'element-plus';
 import { savingsGoalsApi } from '@/utils/api';
@@ -209,6 +221,7 @@ interface SavingsGoal {
   targetDate: Date | null;
   startDate: Date;
   icon: string;
+  color: string;
   description?: string;
   deposits: Deposit[];
   isCompleted?: boolean;
@@ -234,6 +247,7 @@ const currentGoal = ref<SavingsGoal>({
   targetDate: null,
   startDate: new Date(),
   icon: 'bi bi-piggy-bank',
+  color: '#00c4cc',
   deposits: [],
   isCompleted: false
 });
@@ -337,8 +351,12 @@ const calculateProgress = (goal: SavingsGoal) => {
   return Math.min(100, Math.round((goal.currentAmount / goal.targetAmount) * 100));
 };
 
-// Get progress color based on percentage
+// Get progress color based on percentage or use goal color
 const getProgressColor = (goal: SavingsGoal) => {
+  // If goal has a custom color, use it
+  if (goal.color) return goal.color;
+  
+  // Otherwise use default gradient based on progress
   const progress = calculateProgress(goal);
   if (progress < 25) return '#ff9800';
   if (progress < 50) return '#2196f3';
@@ -396,8 +414,41 @@ const calculateMonthlyNeed = (goal: SavingsGoal) => {
   return formatNumber(Math.ceil(remaining / diffMonths));
 };
 
-// Show add goal dialog
-const showAddGoalDialog = () => {
+// Window width for responsive dialogs - Fixed to avoid initialization error
+const windowWidth = ref(typeof globalThis !== 'undefined' ? globalThis.innerWidth : 1024);
+
+// Define resize handler explicitly to be able to remove it later
+const handleResize = () => {
+  windowWidth.value = window.innerWidth;
+};
+
+// Ensure dialogs are properly closed when component is unmounted
+onBeforeUnmount(() => {
+  // Force close any open dialogs to prevent flickering
+  dialogVisible.value = false;
+  depositDialogVisible.value = false;
+});
+
+// Update window width on resize
+onMounted(() => {
+  if (typeof window !== 'undefined') {
+    // Set initial width
+    windowWidth.value = window.innerWidth;
+    
+    // Add resize listener
+    window.addEventListener('resize', handleResize);
+  }
+});
+
+// Clean up event listener
+onUnmounted(() => {
+  if (typeof window !== 'undefined') {
+    window.removeEventListener('resize', handleResize);
+  }
+});
+
+// Use nextTick to ensure smoother dialog transitions
+const showAddGoalDialog = async () => {
   isEditing.value = false;
   currentGoal.value = {
     id: 'new',
@@ -407,27 +458,31 @@ const showAddGoalDialog = () => {
     targetDate: new Date(new Date().setMonth(new Date().getMonth() + 12)), // Default to 1 year from now
     startDate: new Date(),
     icon: 'bi bi-piggy-bank',
+    color: '#00c4cc',
     deposits: [],
     isCompleted: false
   };
+  await nextTick(); // Wait for DOM update
   dialogVisible.value = true;
 };
 
-// Show edit goal dialog
-const showEditGoalDialog = (goal: SavingsGoal) => {
+// Show edit goal dialog with nextTick
+const showEditGoalDialog = async (goal: SavingsGoal) => {
   isEditing.value = true;
   currentGoal.value = { ...goal };
+  await nextTick(); // Wait for DOM update
   dialogVisible.value = true;
 };
 
-// Show deposit dialog
-const showDepositDialog = (goal: SavingsGoal) => {
+// Show deposit dialog with nextTick
+const showDepositDialog = async (goal: SavingsGoal) => {
   selectedGoalId.value = goal.id;
   depositAmount.value = {
     amount: 1000,
     date: new Date(),
     note: ''
   };
+  await nextTick(); // Wait for DOM update
   depositDialogVisible.value = true;
 };
 
@@ -625,6 +680,7 @@ onMounted(async () => {
         currentAmount: 25000, // Ensure initial amount is set
         targetDate: new Date(new Date().setMonth(new Date().getMonth() + 6)),
         icon: 'bi bi-piggy-bank',
+        color: '#00c4cc',
         description: 'Building a 3-month emergency fund for unexpected expenses'
       };
       
@@ -666,6 +722,7 @@ onMounted(async () => {
           targetDate: new Date(new Date().setMonth(new Date().getMonth() + 6)),
           startDate: new Date(),
           icon: 'bi bi-piggy-bank',
+          color: '#00c4cc',
           description: 'Building a 3-month emergency fund for unexpected expenses',
           isCompleted: false,
           deposits: [
@@ -689,6 +746,53 @@ onMounted(async () => {
 <style scoped>
 .savings-goals {
   margin-bottom: 2rem;
+}
+
+/* Dialog styles for mobile */
+:deep(.goal-dialog .el-dialog), :deep(.deposit-dialog .el-dialog) {
+  margin: 0 auto !important;
+  transition: transform 0.3s, opacity 0.3s !important;
+  transform: none !important;
+  animation-duration: 0.3s !important;
+}
+
+/* Fix transition flickering on mobile */
+:deep(.goal-dialog .el-dialog__body), :deep(.deposit-dialog .el-dialog__body) {
+  padding-top: 10px;
+  overflow-y: auto;
+  overscroll-behavior: contain; /* Prevent page scrolling when dialog content is scrolled */
+}
+
+:deep(.el-dialog__headerbtn) {
+  z-index: 10;
+}
+
+/* Prevent body scrolling when dialog is open */
+:deep(.el-overlay) {
+  overflow: hidden;
+  -webkit-overflow-scrolling: touch;
+  animation-duration: 0.3s !important;
+  transition: opacity 0.3s ease-out !important;
+}
+
+:deep(.el-overlay-dialog) {
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+/* Custom transition for mobile dialogs to prevent flickering */
+:deep(.goal-dialog), :deep(.deposit-dialog) {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-font-smoothing: subpixel-antialiased;
+  will-change: transform, opacity;
+}
+
+/* Fix flickering by improving rendering */
+:deep(.el-dialog), :deep(.el-overlay) {
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
 }
 
 .goals-header {
@@ -851,6 +955,62 @@ onMounted(async () => {
 }
 
 @media (max-width: 768px) {
+  /* Additional fixes for mobile dialogs */
+  :deep(.el-dialog) {
+    position: relative !important;
+    margin: 0 auto !important;
+    max-height: 100vh !important;
+    border-radius: 16px 16px 0 0 !important;
+  }
+
+  :deep(.el-overlay-dialog) {
+    display: flex;
+    align-items: flex-end; /* Position at bottom of screen */
+  }
+  
+  :deep(.goal-dialog .el-form-item), :deep(.deposit-dialog .el-form-item) {
+    margin-bottom: 16px;
+  }
+  
+  :deep(.goal-dialog .el-form-item__label), :deep(.deposit-dialog .el-form-item__label) {
+    padding-bottom: 4px;
+  }
+  
+  :deep(.goal-dialog .el-input__inner), :deep(.deposit-dialog .el-input__inner) {
+    height: 40px;
+  }
+  
+  :deep(.el-dialog__header) {
+    padding: 15px;
+    margin-right: 0;
+    position: relative;
+  }
+  
+  /* Add pull indicator for mobile dialogs */
+  :deep(.el-dialog__header)::before {
+    content: '';
+    position: absolute;
+    top: 6px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40px;
+    height: 4px;
+    background-color: #ddd;
+    border-radius: 4px;
+  }
+  
+  :deep(.el-dialog__body) {
+    padding: 15px;
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+  }
+  
+  :deep(.el-dialog__footer) {
+    padding: 10px 15px 15px;
+    border-top: 1px solid #f0f0f0;
+  }
+  
+  /* Goal card mobile styles */
   .goals-list {
     grid-template-columns: 1fr;
   }

@@ -142,7 +142,7 @@ const createGoal = async (req, res) => {
 const updateGoal = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, targetAmount, icon, color, targetDate, category, priority } = req.body;
+    const { name, targetAmount, currentAmount, icon, color, targetDate, category, priority } = req.body;
     
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({ message: 'Invalid goal ID format' });
@@ -166,6 +166,11 @@ const updateGoal = async (req, res) => {
     existingGoal.targetDate = targetDate ? new Date(targetDate) : existingGoal.targetDate;
     existingGoal.category = category || existingGoal.category;
     existingGoal.priority = priority || existingGoal.priority;
+    
+    // Update current amount if provided and not relying on deposits calculation
+    if (currentAmount !== undefined) {
+      existingGoal.currentAmount = currentAmount;
+    }
     
     // Check if goal is completed
     if (existingGoal.currentAmount >= existingGoal.targetAmount) {

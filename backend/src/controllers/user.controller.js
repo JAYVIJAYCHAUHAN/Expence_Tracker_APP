@@ -121,7 +121,18 @@ const logout = async (req, res) => {
 
 const getProfile = async (req, res) => {
   try {
-    res.json(req.user);
+    // Get the user ID from the request
+    const userId = req.user.userId;
+    
+    // Find the complete user document
+    const user = await User.findById(userId);
+    
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    
+    // Return the user data without sensitive information
+    res.json(user.toJSON());
   } catch (error) {
     res.status(500).json({ message: 'Error fetching profile', error });
   }
@@ -129,10 +140,20 @@ const getProfile = async (req, res) => {
 
 const updateProfile = async (req, res) => {
   try {
-    const user = req.user;
+    // Get the user ID from the request
+    const userId = req.user.userId;
+    
+    // Find the complete user document from the database
+    const user = await User.findById(userId);
+    
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    
     const updates = req.body;
     const allowedUpdates = ['userName', 'email', 'password', 'fullName', 'bio', 'phone', 'avatarUrl'];
     console.log('updates', updates);
+    
     // Validate that only allowed fields are being updated
     const updateFields = Object.keys(updates);
     const isValidOperation = updateFields.every(field => allowedUpdates.includes(field));

@@ -30,8 +30,7 @@ const verifyToken = async (req, res, next) => {
     // Attach user to request
     req.user = {
       userId: user._id,
-      email: user.email,
-      name: user.name
+      email: user.email
     };
     
     next();
