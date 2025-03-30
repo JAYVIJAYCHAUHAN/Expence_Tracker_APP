@@ -9,7 +9,7 @@ import { useNotifications, NotificationType } from './notification';
 // Define available features
 export enum Feature {
   ACHIEVEMENTS = 'achievements',
-  DARK_MODE = 'dark_mode',
+  // DARK_MODE = 'dark_mode',
   SAVINGS_GOALS = 'savings_goals',
   BUDGET_INSIGHTS = 'budget_insights',
   EXPENSE_PREDICTION = 'expense_prediction',
