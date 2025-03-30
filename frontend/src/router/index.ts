@@ -76,6 +76,7 @@ const routes = [
     name: "Login",
     component: Login,
   },
+  /* Subscription route hidden temporarily
   {
     path: '/subscription',
     name: 'Subscription',
@@ -85,6 +86,7 @@ const routes = [
       title: 'Subscription Plans'
     }
   }
+  */
 ];
 
 const router = createRouter({

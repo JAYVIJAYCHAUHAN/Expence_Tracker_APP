@@ -24,8 +24,12 @@
         <template #dropdown>
           <el-dropdown-menu>
             <el-dropdown-item command="profile">
-              <i class="bi bi-person"></i> Edit Profile
+              <i class="bi bi-person-circle"></i> Profile
             </el-dropdown-item>
+            <!-- Subscription option hidden temporarily -->
+            <!-- <el-dropdown-item command="subscription">
+              <i class="bi bi-star"></i> Subscription
+            </el-dropdown-item> -->
             <el-dropdown-item command="settings">
               <i class="bi bi-gear"></i> Settings
             </el-dropdown-item>
@@ -50,6 +54,7 @@ import { ElMessage } from 'element-plus';
 import { useLoginModal } from '@/composables/useLoginModal';
 import { userApi } from '@/utils/api';
 import { useGamification } from '@/utils/gamification';
+import { clearAllNotifications } from '@/utils/notification';
 
 interface UserData {
   fullName: string;
@@ -110,6 +115,10 @@ const handleCommand = (command: string) => {
     case 'settings':
       router.push('/settings');
       break;
+    // Subscription feature hidden temporarily
+    // case 'subscription':
+    //   router.push('/subscription');
+    //   break;
     case 'about':
       router.push('/about');
       break;
@@ -136,6 +145,10 @@ const handleLogout = async () => {
     localStorage.removeItem('monthly_budget');
     localStorage.removeItem('notification_settings');
     
+    // Clear all notifications
+    clearAllNotifications();
+    localStorage.removeItem('app_notifications');
+    
     // Reset user progress using the gamification service
     resetProgress();
     
@@ -149,7 +162,7 @@ const handleLogout = async () => {
     ElMessage.success('Logged out successfully');
     
     // Redirect to login page
-    router.push('/signup');
+    router.push('/');
   } catch (error: any) {
     console.error('Error during logout:', error);
     

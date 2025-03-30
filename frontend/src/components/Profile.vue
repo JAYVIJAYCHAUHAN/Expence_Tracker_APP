@@ -1,5 +1,7 @@
 <template>
-  <div class="profile-container">
+  <ProfileSkeleton v-if="isLoading" />
+
+  <div v-else class="profile-container">
     <div class="profile-header">
       <h2>Edit Profile</h2>
       <p>Update your personal information</p>
@@ -102,9 +104,11 @@ import { ref, onMounted } from 'vue';
 import { ElMessage } from 'element-plus';
 import type { FormInstance, FormRules } from 'element-plus';
 import type { UploadFile } from 'element-plus';
+import ProfileSkeleton from './ui/skeletons/ProfileSkeleton.vue';
 
 const formRef = ref<FormInstance>();
 const loading = ref(false);
+const isLoading = ref(true);
 const API_URL = import.meta.env.VITE_API_URL;
 const formData = ref({
   fullName: '',
@@ -136,7 +140,8 @@ const rules: FormRules = {
   ]
 };
 
-const loadUserData = () => {
+const loadUserData = async () => {
+  isLoading.value = true;
   const userData = localStorage.getItem('user');
   if (userData) {
     try {
@@ -147,7 +152,13 @@ const loadUserData = () => {
       };
     } catch (error) {
       ElMessage.error('Error loading user data');
+    } finally {
+      setTimeout(() => {
+        isLoading.value = false;
+      }, 500);
     }
+  } else {
+    isLoading.value = false;
   }
 };
 

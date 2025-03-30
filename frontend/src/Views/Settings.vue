@@ -7,217 +7,225 @@
     
     <h1 class="settings-title">Settings</h1>
     
-    <el-card class="settings-section">
-      <template #header>
-        <div class="section-header">
-          <h2>Features</h2>
-          <span class="section-description">Customize your experience by enabling or disabling features</span>
-        </div>
-      </template>
-      
-      <div class="features-list">
-        <div v-for="feature in allFeatures" :key="feature.id" class="feature-item">
-          <div class="feature-info">
-            <h3>{{ feature.name }}</h3>
-            <p>{{ feature.description }}</p>
-            <el-tag v-if="feature.beta" type="warning" size="small" class="feature-tag">Beta</el-tag>
-          </div>
-          <el-switch
-            v-model="featureStates[feature.id]"
-            @change="(val: boolean) => handleFeatureToggle(feature.id, val)"
-            active-color="#00c4cc"
-          />
-        </div>
-      </div>
-    </el-card>
+    <!-- Show skeleton loaders while loading -->
+    <template v-if="isLoading">
+      <Skeletons name="settings" />
+    </template>
     
-    <el-card class="settings-section" v-if="isAchievementsEnabled">
-      <template #header>
-        <div class="section-header">
-          <h2>Your Progress</h2>
-          <span class="section-description">Your achievements and stats</span>
+    <!-- Actual content when data is loaded -->
+    <template v-else>
+      <el-card class="settings-section">
+        <template #header>
+          <div class="section-header">
+            <h2>Features</h2>
+            <span class="section-description">Customize your experience by enabling or disabling features</span>
+          </div>
+        </template>
+        
+        <div class="features-list">
+          <div v-for="feature in allFeatures" :key="feature.id" class="feature-item">
+            <div class="feature-info">
+              <h3>{{ feature.name }}</h3>
+              <p>{{ feature.description }}</p>
+              <el-tag v-if="feature.beta" type="warning" size="small" class="feature-tag">Beta</el-tag>
+            </div>
+            <el-switch
+              v-model="featureStates[feature.id]"
+              @change="(val: boolean) => handleFeatureToggle(feature.id, val)"
+              active-color="#00c4cc"
+            />
+          </div>
         </div>
-      </template>
+      </el-card>
       
-      <div class="progress-section">
-        <div class="progress-stats">
-          <div class="stat-item">
-            <div class="stat-value">{{ gamificationProgress.level }}</div>
-            <div class="stat-label">Level</div>
+      <el-card class="settings-section" v-if="isAchievementsEnabled">
+        <template #header>
+          <div class="section-header">
+            <h2>Your Progress</h2>
+            <span class="section-description">Your achievements and stats</span>
           </div>
-          <div class="stat-item">
-            <div class="stat-value">{{ gamificationProgress.points }}</div>
-            <div class="stat-label">Points</div>
-          </div>
-          <div class="stat-item">
-            <div class="stat-value">{{ gamificationProgress.streak }}</div>
-            <div class="stat-label">Day Streak</div>
-          </div>
-          <div class="stat-item">
-            <div class="stat-value">{{ gamificationProgress.achievements.length }}</div>
-            <div class="stat-label">Achievements</div>
-          </div>
-        </div>
+        </template>
         
-        <el-progress
-          :percentage="levelProgress"
-          :format="formatLevelProgress"
-          :stroke-width="10"
-          status="success"
-          class="level-progress"
-        />
-        
-        <div class="achievements-section" v-if="gamificationProgress.achievements.length > 0">
-          <h3>Your Achievements</h3>
-          <div class="achievements-list">
-            <div 
-              v-for="achievement in gamificationProgress.achievements" 
-              :key="achievement.id"
-              class="achievement-item"
-            >
-              <div class="achievement-icon">
-                <i :class="achievement.icon"></i>
-              </div>
-              <div class="achievement-info">
-                <h4>{{ achievement.title }}</h4>
-                <p>{{ achievement.description }}</p>
-                <div class="achievement-meta">
-                  <span class="achievement-date">{{ formatDate(achievement.earnedAt) }}</span>
-                  <span class="achievement-points">+{{ achievement.points }} pts</span>
+        <div class="progress-section">
+          <div class="progress-stats">
+            <div class="stat-item">
+              <div class="stat-value">{{ gamificationProgress.level }}</div>
+              <div class="stat-label">Level</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value">{{ gamificationProgress.points }}</div>
+              <div class="stat-label">Points</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value">{{ gamificationProgress.streak }}</div>
+              <div class="stat-label">Day Streak</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value">{{ gamificationProgress.achievements.length }}</div>
+              <div class="stat-label">Achievements</div>
+            </div>
+          </div>
+          
+          <el-progress
+            :percentage="levelProgress"
+            :format="formatLevelProgress"
+            :stroke-width="10"
+            status="success"
+            class="level-progress"
+          />
+          
+          <div class="achievements-section" v-if="gamificationProgress.achievements.length > 0">
+            <h3>Your Achievements</h3>
+            <div class="achievements-list">
+              <div 
+                v-for="achievement in gamificationProgress.achievements" 
+                :key="achievement.id"
+                class="achievement-item"
+              >
+                <div class="achievement-icon">
+                  <i :class="achievement.icon"></i>
+                </div>
+                <div class="achievement-info">
+                  <h4>{{ achievement.title }}</h4>
+                  <p>{{ achievement.description }}</p>
+                  <div class="achievement-meta">
+                    <span class="achievement-date">{{ formatDate(achievement.earnedAt) }}</span>
+                    <span class="achievement-points">+{{ achievement.points }} pts</span>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
+          
+          <div class="no-achievements" v-else>
+            <i class="bi bi-trophy"></i>
+            <p>You haven't earned any achievements yet. Start tracking your expenses to earn your first achievement!</p>
+          </div>
+        </div>
+      </el-card>
+      
+      <el-card class="settings-section">
+        <template #header>
+          <div class="section-header">
+            <h2>Appearance</h2>
+            <span class="section-description">Customize how the app looks</span>
+          </div>
+        </template>
+        
+        <div class="appearance-settings">
+          <div class="setting-item">
+            <div class="setting-info">
+              <h3>Compact View</h3>
+              <p>Use a more compact layout to fit more content on screen</p>
+            </div>
+            <el-switch
+              v-model="compactView"
+              @change="toggleCompactView"
+              active-color="#00c4cc"
+            />
+          </div>
+        </div>
+      </el-card>
+      
+      <el-card class="settings-section">
+        <template #header>
+          <div class="section-header">
+            <h2>Notifications</h2>
+            <span class="section-description">Manage what notifications you receive</span>
+          </div>
+        </template>
+        
+        <div class="notification-settings" v-if="isNotificationsEnabled">
+          <div class="setting-item">
+            <div class="setting-info">
+              <h3>Budget Alerts</h3>
+              <p>Get notified when you're approaching your budget limits</p>
+            </div>
+            <el-switch
+              v-model="notificationSettings.budgetAlerts"
+              @change="saveNotificationSettings"
+              active-color="#00c4cc"
+            />
+          </div>
+          
+          <div class="setting-item">
+            <div class="setting-info">
+              <h3>Achievement Notifications</h3>
+              <p>Get notified when you earn new achievements</p>
+            </div>
+            <el-switch
+              v-model="notificationSettings.achievements"
+              @change="saveNotificationSettings"
+              active-color="#00c4cc"
+            />
+          </div>
+          
+          <div class="setting-item">
+            <div class="setting-info">
+              <h3>Feature Tips</h3>
+              <p>Receive occasional tips about app features</p>
+            </div>
+            <el-switch
+              v-model="notificationSettings.featureTips"
+              @change="saveNotificationSettings"
+              active-color="#00c4cc"
+            />
+          </div>
         </div>
         
-        <div class="no-achievements" v-else>
-          <i class="bi bi-trophy"></i>
-          <p>You haven't earned any achievements yet. Start tracking your expenses to earn your first achievement!</p>
-        </div>
-      </div>
-    </el-card>
-    
-    <el-card class="settings-section">
-      <template #header>
-        <div class="section-header">
-          <h2>Appearance</h2>
-          <span class="section-description">Customize how the app looks</span>
-        </div>
-      </template>
-      
-      <div class="appearance-settings">
-        <div class="setting-item">
-          <div class="setting-info">
-            <h3>Compact View</h3>
-            <p>Use a more compact layout to fit more content on screen</p>
-          </div>
-          <el-switch
-            v-model="compactView"
-            @change="toggleCompactView"
-            active-color="#00c4cc"
+        <div class="notifications-disabled" v-else>
+          <el-alert
+            title="Notifications are disabled"
+            type="info"
+            description="Enable the Notifications feature to configure notification preferences."
+            :closable="false"
+            show-icon
           />
         </div>
-      </div>
-    </el-card>
-    
-    <el-card class="settings-section">
-      <template #header>
-        <div class="section-header">
-          <h2>Notifications</h2>
-          <span class="section-description">Manage what notifications you receive</span>
-        </div>
-      </template>
+      </el-card>
       
-      <div class="notification-settings" v-if="isNotificationsEnabled">
-        <div class="setting-item">
-          <div class="setting-info">
-            <h3>Budget Alerts</h3>
-            <p>Get notified when you're approaching your budget limits</p>
+      <el-card class="settings-section">
+        <template #header>
+          <div class="section-header">
+            <h2>App Information</h2>
+            <span class="section-description">About this app</span>
           </div>
-          <el-switch
-            v-model="notificationSettings.budgetAlerts"
-            @change="saveNotificationSettings"
-            active-color="#00c4cc"
-          />
-        </div>
+        </template>
         
-        <div class="setting-item">
-          <div class="setting-info">
-            <h3>Achievement Notifications</h3>
-            <p>Get notified when you earn new achievements</p>
+        <div class="app-info">
+          <div class="info-item">
+            <div class="info-label">Version</div>
+            <div class="info-value">{{ appVersion }}</div>
           </div>
-          <el-switch
-            v-model="notificationSettings.achievements"
-            @change="saveNotificationSettings"
-            active-color="#00c4cc"
-          />
-        </div>
-        
-        <div class="setting-item">
-          <div class="setting-info">
-            <h3>Feature Tips</h3>
-            <p>Receive occasional tips about app features</p>
+          <div class="info-item">
+            <div class="info-label">Last Updated</div>
+            <div class="info-value">{{ formatDate(Date.now()) }}</div>
           </div>
-          <el-switch
-            v-model="notificationSettings.featureTips"
-            @change="saveNotificationSettings"
-            active-color="#00c4cc"
-          />
+          <div class="info-item">
+            <div class="info-label">Developer</div>
+            <div class="info-value">Jayvijay Chauhan</div>
+          </div>
+          
+          <div class="action-buttons">
+            <router-link to="/about">
+              <el-button type="primary" plain>About Page</el-button>
+            </router-link>
+            <el-button type="success" plain @click="clearCache">Clear Cache</el-button>
+          </div>
         </div>
-      </div>
+      </el-card>
       
-      <div class="notifications-disabled" v-else>
-        <el-alert
-          title="Notifications are disabled"
-          type="info"
-          description="Enable the Notifications feature to configure notification preferences."
-          :closable="false"
-          show-icon
-        />
-      </div>
-    </el-card>
-    
-    <el-card class="settings-section">
-      <template #header>
-        <div class="section-header">
-          <h2>App Information</h2>
-          <span class="section-description">About this app</span>
-        </div>
-      </template>
-      
-      <div class="app-info">
-        <div class="info-item">
-          <div class="info-label">Version</div>
-          <div class="info-value">{{ appVersion }}</div>
-        </div>
-        <div class="info-item">
-          <div class="info-label">Last Updated</div>
-          <div class="info-value">{{ formatDate(Date.now()) }}</div>
-        </div>
-        <div class="info-item">
-          <div class="info-label">Developer</div>
-          <div class="info-value">Jayvijay Chauhan</div>
-        </div>
+      <el-card class="settings-section" v-if="isFeatureEnabled(Feature.SAVINGS_GOALS)">
+        <template #header>
+          <div class="section-header">
+            <h2>Savings Goals</h2>
+            <span class="section-description">Set and track your financial goals</span>
+          </div>
+        </template>
         
-        <div class="action-buttons">
-          <router-link to="/about">
-            <el-button type="primary" plain>About Page</el-button>
-          </router-link>
-          <el-button type="success" plain @click="clearCache">Clear Cache</el-button>
-        </div>
-      </div>
-    </el-card>
-    
-    <el-card class="settings-section" v-if="isFeatureEnabled(Feature.SAVINGS_GOALS)">
-      <template #header>
-        <div class="section-header">
-          <h2>Savings Goals</h2>
-          <span class="section-description">Set and track your financial goals</span>
-        </div>
-      </template>
-      
-      <SavingsGoals />
-    </el-card>
+        <SavingsGoals />
+      </el-card>
+    </template>
   </div>
 </template>
 
@@ -228,10 +236,14 @@ import { Feature, useFeatureFlags } from '@/utils/featureFlags';
 import { useGamification } from '@/utils/gamification';
 import SavingsGoals from '@/components/SavingsGoals.vue';
 import { settingsApi } from '@/utils/api';
+import Skeletons from '@/components/ui/Skeletons.vue';
 
 // Get app version
 const instance = getCurrentInstance();
 const appVersion = computed(() => instance?.appContext.config.globalProperties.$appVersion || '2.0.0');
+
+// Loading state
+const isLoading = ref(true);
 
 // Feature flags
 const { getAllFeatures, isFeatureEnabled, setFeatureEnabled } = useFeatureFlags();
@@ -502,20 +514,29 @@ watch(() => localStorage.getItem('token'), (newToken) => {
 
 // Initialize
 onMounted(async () => {
-  // Load feature states
-  allFeatures.value.forEach(feature => {
-    featureStates.value[feature.id] = isFeatureEnabled(feature.id as Feature);
-  });
-  
-  if (token.value) {
-    await loadSettings();
-  } else {
-    loadFromLocalStorage();
-  }
-  
-  // Apply compact view if enabled
-  if (compactView.value) {
-    document.documentElement.classList.add('compact-view');
+  try {
+    isLoading.value = true;
+    
+    // Load feature states
+    allFeatures.value.forEach(feature => {
+      featureStates.value[feature.id] = isFeatureEnabled(feature.id as Feature);
+    });
+    
+    if (token.value) {
+      await loadSettings();
+    } else {
+      loadFromLocalStorage();
+    }
+    
+    // Apply compact view if enabled
+    if (compactView.value) {
+      document.documentElement.classList.add('compact-view');
+    }
+  } catch (error) {
+    console.error('Error loading settings:', error);
+    ElMessage.error('Failed to load settings');
+  } finally {
+    isLoading.value = false;
   }
 });
 </script>

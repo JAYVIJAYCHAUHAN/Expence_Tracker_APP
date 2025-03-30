@@ -21,71 +21,82 @@
           </div>
     </div>
 
-    <!-- Budget Progress -->
-    <div class="budget-section">
-      <div class="budget-header">
-        <h3>Budget Overview</h3>
-        <p>{{ getDaysRemaining() }} days remaining this month</p>
+    <!-- Skeleton loaders while data is loading -->
+    <template v-if="isLoading">
+      <Skeletons name="summary-card" :count="3" />
+      <div style="margin-top: 20px;">
+        <Skeletons name="chart" height="300px" />
       </div>
-      <el-progress 
-        :percentage="getBudgetPercentage()" 
-        :status="getBudgetStatus()"
-        :stroke-width="20"
-        :format="formatBudgetProgress"
-      />
-      <div class="budget-stats">
-        <div class="stat-item">
-          <span class="label">Spent</span>
-          <span class="value">₹{{ formatAmount(totalSpent) }}</span>
-        </div>
-        <div class="stat-item">
-          <span class="label">Remaining</span>
-          <span class="value">₹{{ formatAmount(remainingBudget) }}</span>
-        </div>
-        <div class="stat-item">
-          <span class="label">Daily Average</span>
-          <span class="value">₹{{ formatAmount(dailyAverage) }}</span>
-        </div>
-      </div>
-    </div>
+    </template>
 
-    <!-- Category Breakdown -->
-    <div class="categories-section">
-      <h3>Category Breakdown</h3>
-      <div class="category-list">
-        <div v-for="category in categoryBreakdown" :key="category.name" class="category-item">
-          <div class="category-header">
-            <el-tag :type="getCategoryType(category.name)">{{ category.name }}</el-tag>
-            <span class="amount">₹{{ formatAmount(category.amount) }}</span>
+    <!-- Actual content when data is loaded -->
+    <template v-else>
+      <!-- Budget Progress -->
+      <div class="budget-section">
+        <div class="budget-header">
+          <h3>Budget Overview</h3>
+          <p>{{ getDaysRemaining() }} days remaining this month</p>
+        </div>
+        <el-progress 
+          :percentage="getBudgetPercentage()" 
+          :status="getBudgetStatus()"
+          :stroke-width="20"
+          :format="formatBudgetProgress"
+        />
+        <div class="budget-stats">
+          <div class="stat-item">
+            <span class="label">Spent</span>
+            <span class="value">₹{{ formatAmount(totalSpent) }}</span>
           </div>
-          <el-progress 
-            :percentage="(category.amount / monthlyBudget) * 100" 
-            :stroke-width="8"
-            :show-text="false"
-          />
-          <div class="category-stats">
-            <span>{{ ((category.amount / totalSpent) * 100).toFixed(1) }}% of total</span>
-            <span>{{ category.count }} transactions</span>
+          <div class="stat-item">
+            <span class="label">Remaining</span>
+            <span class="value">₹{{ formatAmount(remainingBudget) }}</span>
+          </div>
+          <div class="stat-item">
+            <span class="label">Daily Average</span>
+            <span class="value">₹{{ formatAmount(dailyAverage) }}</span>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- Insights Section -->
-    <div class="insights-section">
-      <h3>Monthly Insights</h3>
-      <el-row :gutter="20">
-        <el-col :xs="24" :sm="12" :md="8" v-for="insight in insights" :key="insight.title">
-          <div class="insight-card" :class="insight.type">
-            <i :class="insight.icon"></i>
-            <div class="insight-content">
-              <h4>{{ insight.title }}</h4>
-              <p>{{ insight.description }}</p>
+      <!-- Category Breakdown -->
+      <div class="categories-section">
+        <h3>Category Breakdown</h3>
+        <div class="category-list">
+          <div v-for="category in categoryBreakdown" :key="category.name" class="category-item">
+            <div class="category-header">
+              <el-tag :type="getCategoryType(category.name)">{{ category.name }}</el-tag>
+              <span class="amount">₹{{ formatAmount(category.amount) }}</span>
+            </div>
+            <el-progress 
+              :percentage="(category.amount / monthlyBudget) * 100" 
+              :stroke-width="8"
+              :show-text="false"
+            />
+            <div class="category-stats">
+              <span>{{ ((category.amount / totalSpent) * 100).toFixed(1) }}% of total</span>
+              <span>{{ category.count }} transactions</span>
             </div>
           </div>
-        </el-col>
-      </el-row>
-    </div>
+        </div>
+      </div>
+
+      <!-- Insights Section -->
+      <div class="insights-section">
+        <h3>Monthly Insights</h3>
+        <el-row :gutter="20">
+          <el-col :xs="24" :sm="12" :md="8" v-for="insight in insights" :key="insight.title">
+            <div class="insight-card" :class="insight.type">
+              <i :class="insight.icon"></i>
+              <div class="insight-content">
+                <h4>{{ insight.title }}</h4>
+                <p>{{ insight.description }}</p>
+              </div>
+            </div>
+          </el-col>
+        </el-row>
+      </div>
+    </template>
 
     <!-- Recent Activity -->
     <div class="recent-activity">
@@ -183,6 +194,7 @@ import axios from 'axios';
 import type { Expense } from '@/type/types';
 import { Feature, useFeatureFlags } from '@/utils/featureFlags';
 import { budgetApi, savingsGoalsApi, expenseApi } from '@/utils/api';
+import Skeletons from '@/components/ui/Skeletons.vue';
 
 const router = useRouter();
 const API_URL = import.meta.env.VITE_API_URL;
@@ -191,7 +203,7 @@ const API_URL = import.meta.env.VITE_API_URL;
 const selectedMonth = ref(new Date());
 const monthlyBudget = ref<number>(0);
 const expenses = ref<Expense[]>([]);
-const isLoading = ref(false);
+const isLoading = ref(true);
 const showEditBudgetDialog = ref(false);
 const newBudgetAmount = ref<number | null>(null);
 
@@ -282,8 +294,9 @@ const recentActivity = computed(() => {
     .slice(0, 5);
 });
 
-// Load the monthly budget from API
+// Load budget for selected month
 const loadBudget = async () => {
+  isLoading.value = true; // Set loading to true when starting data fetch
   try {
     const budget = await budgetApi.getBudget(
       selectedMonth.value.getMonth() + 1,
@@ -296,6 +309,7 @@ const loadBudget = async () => {
     const savedBudget = localStorage.getItem('monthly_budget');
     monthlyBudget.value = savedBudget ? parseInt(savedBudget) : 50000;
   }
+  // Don't set loading to false here to allow other data loading to complete
 };
 
 // Update the budget
@@ -359,10 +373,12 @@ const loadSavingsGoals = async () => {
       console.error('Failed to load from localStorage:', localError);
     }
   }
+  // Don't set loading to false here to allow other data loading to complete
 };
 
 // Fetch expenses
 const fetchExpenses = async () => {
+  isLoading.value = true; // Set loading state to true before fetching data
   try {
     // Get expenses from API
     const month = selectedMonth.value.getMonth() + 1;
@@ -372,12 +388,14 @@ const fetchExpenses = async () => {
   } catch (error) {
     console.error('Failed to fetch expenses:', error);
     expenses.value = []; // Clear expenses on error
+  } finally {
+    isLoading.value = false; // Set loading state to false when done, whether successful or not
   }
 };
 
 // Methods
 const handleMonthChange = () => {
-  fetchExpenses();
+  // Month changes are handled by the watch on selectedMonth
 };
 
 const getDaysRemaining = () => {
@@ -474,8 +492,18 @@ const showBudgetDialog = () => {
 
 // Watch for month changes
 watch(selectedMonth, async () => {
-  await loadBudget();
-  await fetchExpenses();
+  isLoading.value = true; // Set loading state to true when month changes
+  try {
+    // Load data in parallel for better performance
+    await Promise.all([
+      loadBudget(),
+      fetchExpenses()
+    ]);
+  } catch (error) {
+    console.error('Error updating data after month change:', error);
+  } finally {
+    isLoading.value = false; // Ensure loading is set to false when all operations complete
+  }
 });
 
 // Watch for authentication changes
@@ -496,10 +524,26 @@ watch(() => localStorage.getItem('token'), (newToken) => {
 
 // Initialize
 onMounted(async () => {
+  isLoading.value = true; // Set loading to true at component mount
   if (token.value) {
-    await loadBudget();
-    await loadSavingsGoals();
-    await fetchExpenses();
+    try {
+      // Load data in parallel for better performance
+      await Promise.all([
+        loadBudget(),
+        loadSavingsGoals(),
+        fetchExpenses()
+      ]);
+    } catch (error) {
+      console.error('Error initializing summary data:', error);
+    } finally {
+      isLoading.value = false; // Ensure loading is set to false when all operations complete
+    }
+  } else {
+    // Set defaults if not authenticated
+    monthlyBudget.value = 50000;
+    savingsGoals.value = [];
+    expenses.value = [];
+    isLoading.value = false; // Set loading to false
   }
 });
 </script>

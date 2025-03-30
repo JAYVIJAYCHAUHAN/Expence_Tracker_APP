@@ -23,80 +23,98 @@
           </div>
     </div>
 
-    <!-- Summary Cards -->
-    <div class="summary-section">
-      <el-row :gutter="20">
-        <el-col :xs="24" :sm="12" :md="8">
-          <div class="summary-card total-expenses">
-            <div class="card-icon">
-              <i class="bi bi-wallet2"></i>
-            </div>
-            <div class="card-content">
-              <h3>Total Expenses</h3>
-              <p class="amount">₹{{ formatAmount(totalExpenses) }}</p>
-              <p class="trend" :class="{ 'positive': expenseTrend < 0, 'negative': expenseTrend > 0 }">
-                <i :class="expenseTrend > 0 ? 'bi bi-arrow-up' : 'bi bi-arrow-down'"></i>
-                {{ Math.abs(expenseTrend) }}% from last period
-              </p>
-            </div>
-          </div>
-        </el-col>
-        <el-col :xs="24" :sm="12" :md="8">
-          <div class="summary-card average-daily">
-            <div class="card-icon">
-              <i class="bi bi-calendar3"></i>
-            </div>
-            <div class="card-content">
-              <h3>Average Daily</h3>
-              <p class="amount">₹{{ formatAmount(averageDaily) }}</p>
-              <p class="comparison">vs ₹{{ formatAmount(targetDaily) }} target</p>
-            </div>
-          </div>
-        </el-col>
-        <el-col :xs="24" :sm="12" :md="8">
-          <div class="summary-card top-category">
-            <div class="card-icon">
-              <i class="bi bi-pie-chart"></i>
-            </div>
-            <div class="card-content">
-              <h3>Top Category</h3>
-              <p class="category">{{ topCategory.name }}</p>
-              <p class="amount">₹{{ formatAmount(topCategory.amount) }}</p>
-            </div>
-          </div>
-        </el-col>
-      </el-row>
-    </div>
+    <!-- Skeleton loaders while data is loading -->
+    <template v-if="isLoading">
+      <Skeletons name="summary-card" :count="3" />
+      <div style="margin-top: 20px">
+        <el-row :gutter="20">
+          <el-col :xs="24" :lg="14">
+            <Skeletons name="chart" height="350px" />
+          </el-col>
+          <el-col :xs="24" :lg="10">
+            <Skeletons name="chart" height="350px" />
+          </el-col>
+        </el-row>
+      </div>
+    </template>
 
-    <!-- Charts Section -->
-    <div class="charts-section">
-      <el-row :gutter="20">
-        <el-col :xs="24" :lg="14">
-          <div class="chart-card">
-            <div class="chart-header">
-              <h3>Expense Trend</h3>
-              <el-radio-group v-model="trendTimeframe" size="small" @change="updateTrendData">
-                <el-radio-button label="weekly">Weekly</el-radio-button>
-                <el-radio-button label="monthly">Monthly</el-radio-button>
-              </el-radio-group>
+    <!-- Actual content when data is loaded -->
+    <template v-else>
+      <!-- Summary Cards -->
+      <div class="summary-section">
+        <el-row :gutter="20">
+          <el-col :xs="24" :sm="12" :md="8">
+            <div class="summary-card total-expenses">
+              <div class="card-icon">
+                <i class="bi bi-wallet2"></i>
+              </div>
+              <div class="card-content">
+                <h3>Total Expenses</h3>
+                <p class="amount">₹{{ formatAmount(totalExpenses) }}</p>
+                <p class="trend" :class="{ 'positive': expenseTrend < 0, 'negative': expenseTrend > 0 }">
+                  <i :class="expenseTrend > 0 ? 'bi bi-arrow-up' : 'bi bi-arrow-down'"></i>
+                  {{ Math.abs(expenseTrend) }}% from last period
+                </p>
+              </div>
             </div>
-            <div class="chart-container">
-              <LineChart :data="trendData" ref="lineChartRef" />
+          </el-col>
+          <el-col :xs="24" :sm="12" :md="8">
+            <div class="summary-card average-daily">
+              <div class="card-icon">
+                <i class="bi bi-calendar3"></i>
+              </div>
+              <div class="card-content">
+                <h3>Average Daily</h3>
+                <p class="amount">₹{{ formatAmount(averageDaily) }}</p>
+                <p class="comparison">vs ₹{{ formatAmount(targetDaily) }} target</p>
+              </div>
             </div>
-          </div>
-        </el-col>
-        <el-col :xs="24" :lg="10">
-          <div class="chart-card">
-            <div class="chart-header">
-              <h3>Category Distribution</h3>
+          </el-col>
+          <el-col :xs="24" :sm="12" :md="8">
+            <div class="summary-card top-category">
+              <div class="card-icon">
+                <i class="bi bi-pie-chart"></i>
+              </div>
+              <div class="card-content">
+                <h3>Top Category</h3>
+                <p class="category">{{ topCategory.name }}</p>
+                <p class="amount">₹{{ formatAmount(topCategory.amount) }}</p>
+              </div>
             </div>
-            <div class="chart-container">
-              <PieChart :data="categoryData" ref="pieChartRef" />
+          </el-col>
+        </el-row>
+      </div>
+
+      <!-- Charts Section -->
+      <div class="charts-section">
+        <el-row :gutter="20">
+          <el-col :xs="24" :lg="14">
+            <div class="chart-card">
+              <div class="chart-header">
+                <h3>Expense Trend</h3>
+                <el-radio-group v-model="trendTimeframe" size="small" @change="updateTrendData">
+                  <el-radio-button label="weekly">Weekly</el-radio-button>
+                  <el-radio-button label="monthly">Monthly</el-radio-button>
+                </el-radio-group>
+              </div>
+              <div class="chart-container">
+                <LineChart :data="trendData" ref="lineChartRef" />
+              </div>
             </div>
-          </div>
-        </el-col>
-      </el-row>
-    </div>
+          </el-col>
+          <el-col :xs="24" :lg="10">
+            <div class="chart-card">
+              <div class="chart-header">
+                <h3>Category Distribution</h3>
+              </div>
+              <div class="chart-container">
+                <PieChart :data="categoryData" ref="pieChartRef" />
+              </div>
+            </div>
+          </el-col>
+        </el-row>
+      </div>
+    </template>
 
     <!-- Recent Transactions -->
     <!-- <div class="transactions-section">
@@ -129,6 +147,7 @@ import { ElMessage } from 'element-plus';
 import { useRouter } from 'vue-router';
 import LineChart from '@/components/charts/LineChart.vue';
 import PieChart from '@/components/charts/PieChart.vue';
+import Skeletons from '@/components/ui/Skeletons.vue';
 import axios from 'axios';
 import type { CategoryData, Expense, TrendData } from '@/type/types';
 import jsPDF from 'jspdf';
@@ -177,6 +196,7 @@ const averageDaily = ref(0);
 const targetDaily = ref(1000); // This could be fetched from user settings
 const topCategory = ref({ name: '', amount: 0 });
 const expenses = ref<Expense[]>([]);
+const isLoading = ref(true);
 
 // Chart data
 const trendData = ref<TrendData[]>([]);
@@ -210,6 +230,8 @@ const fetchExpenses = async () => {
       ElMessage.error('Failed to fetch expense data');
       console.error('Error fetching expenses:', error);
     }
+  } finally {
+    isLoading.value = false;
   }
 };
 

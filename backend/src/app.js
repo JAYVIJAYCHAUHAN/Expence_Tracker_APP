@@ -12,6 +12,7 @@ const expenseRoutes = require('./routes/expense.routes');
 const savingsGoalsRoutes = require('./routes/savings-goals.routes');
 const budgetRoutes = require('./routes/budget.routes');
 const settingsRoutes = require('./routes/settings.routes');
+const subscriptionRoutes = require('./routes/subscription.routes');
 
 dotenv.config();
 
@@ -28,6 +29,7 @@ app.use(express.urlencoded({ limit: '50mb', extended: true }));
 // Auth routes (public)
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/subscriptions', subscriptionRoutes);
 
 // Apply demo restrictions after public routes
 app.use(demoRestrictions);

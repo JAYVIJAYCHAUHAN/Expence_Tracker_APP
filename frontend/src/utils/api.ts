@@ -500,10 +500,185 @@ function addLocalStorageDeposit(goalId: string, deposit: any) {
   }
 }
 
+// Subscription API
+export const subscriptionApi = {
+  // Get all available subscription plans
+  getPlans: async () => {
+    try {
+      const response = await apiClient.get('/subscriptions/plans');
+      return response.data;
+    } catch (error) {
+      console.error('Failed to fetch subscription plans:', error);
+      // Fallback data if API is not available
+      return handleApiError(error, [
+        {
+          id: 'free',
+          name: 'Free',
+          price: 0,
+          interval: 'month',
+          features: [
+            'Basic expense tracking',
+            'Monthly reports',
+            'Up to 50 expense entries/month',
+            'Data export (CSV)'
+          ],
+          isPopular: false,
+          isCurrent: true
+        },
+        {
+          id: 'pro',
+          name: 'Professional',
+          price: 499,
+          interval: 'month',
+          features: [
+            'Unlimited expense entries',
+            'Advanced analytics',
+            'Budget planning tools',
+            'Category insights',
+            'Email reports',
+            'Priority support'
+          ],
+          isPopular: true,
+          isCurrent: false
+        },
+        {
+          id: 'business',
+          name: 'Business',
+          price: 999,
+          interval: 'month',
+          features: [
+            'All Professional features',
+            'Multi-user accounts',
+            'Team expense tracking',
+            'Receipt scanning',
+            'Custom categories',
+            'API access',
+            'Dedicated support'
+          ],
+          isPopular: false,
+          isCurrent: false
+        }
+      ]);
+    }
+  },
+  
+  // Get current user's subscription
+  getCurrentSubscription: async () => {
+    try {
+      const response = await apiClient.get('/subscriptions/current');
+      return response.data;
+    } catch (error) {
+      console.error('Failed to fetch current subscription:', error);
+      // Fallback to free plan if API is not available
+      return handleApiError(error, {
+        plan: 'free',
+        status: 'active',
+        currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+        cancelAtPeriodEnd: false
+      });
+    }
+  },
+  
+  // Subscribe to a plan
+  subscribeToPlan: async (planId: string, paymentMethodId: string) => {
+    try {
+      const response = await apiClient.post('/subscriptions/subscribe', {
+        planId,
+        paymentMethodId
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Failed to subscribe to plan:', error);
+      throw error; // Don't use fallback for payment operations
+    }
+  },
+  
+  // Update an existing subscription
+  updateSubscription: async (subscriptionId: string, data: any) => {
+    try {
+      const response = await apiClient.put(`/subscriptions/${subscriptionId}`, data);
+      return response.data;
+    } catch (error) {
+      console.error('Failed to update subscription:', error);
+      throw error; // Don't use fallback for payment operations
+    }
+  },
+  
+  // Cancel a subscription
+  cancelSubscription: async (subscriptionId: string) => {
+    try {
+      const response = await apiClient.post(`/subscriptions/${subscriptionId}/cancel`);
+      return response.data;
+    } catch (error) {
+      console.error('Failed to cancel subscription:', error);
+      throw error; // Don't use fallback for payment operations
+    }
+  },
+  
+  // Resume a canceled subscription
+  resumeSubscription: async (subscriptionId: string) => {
+    try {
+      const response = await apiClient.post(`/subscriptions/${subscriptionId}/resume`);
+      return response.data;
+    } catch (error) {
+      console.error('Failed to resume subscription:', error);
+      throw error; // Don't use fallback for payment operations
+    }
+  },
+  
+  // Get payment methods
+  getPaymentMethods: async () => {
+    try {
+      const response = await apiClient.get('/subscriptions/payment-methods');
+      return response.data;
+    } catch (error) {
+      console.error('Failed to get payment methods:', error);
+      return handleApiError(error, []);
+    }
+  },
+  
+  // Add a new payment method
+  addPaymentMethod: async (paymentMethodData: any) => {
+    try {
+      const response = await apiClient.post('/subscriptions/payment-methods', paymentMethodData);
+      return response.data;
+    } catch (error) {
+      console.error('Failed to add payment method:', error);
+      throw error; // Don't use fallback for payment operations
+    }
+  },
+  
+  // Get subscription usage and limits
+  getUsageAndLimits: async () => {
+    try {
+      const response = await apiClient.get('/subscriptions/usage');
+      return response.data;
+    } catch (error) {
+      console.error('Failed to fetch subscription usage:', error);
+      return handleApiError(error, {
+        expenses: {
+          used: Math.floor(Math.random() * 30) + 10,
+          limit: 50,
+          resetDate: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1).toISOString()
+        },
+        features: {
+          dataExport: true,
+          budgetPlanning: false,
+          advancedAnalytics: false,
+          receiptScanning: false,
+          emailReports: false,
+          apiAccess: false
+        }
+      });
+    }
+  }
+};
+
 export default {
   userApi,
   expenseApi,
   savingsGoalsApi,
   budgetApi,
-  settingsApi
+  settingsApi,
+  subscriptionApi
 }; 

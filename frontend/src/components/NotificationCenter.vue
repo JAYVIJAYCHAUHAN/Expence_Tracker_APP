@@ -89,6 +89,9 @@ const showNotifications = ref(false);
 const notifications = computed(() => notificationsRef.value);
 const unreadCount = computed(() => unreadCountRef.value);
 
+// Check if user is logged in
+const isLoggedIn = computed(() => !!localStorage.getItem('token'));
+
 // Close panel when clicking outside
 const handleClickOutside = (event: MouseEvent) => {
   const target = event.target as HTMLElement;
@@ -102,6 +105,10 @@ const handleClickOutside = (event: MouseEvent) => {
 
 // Toggle notification panel
 const toggleNotifications = () => {
+  // Only show notifications if logged in
+  if (!isLoggedIn.value) {
+    return;
+  }
   showNotifications.value = !showNotifications.value;
 };
 
@@ -150,11 +157,23 @@ const handleNotificationClick = (notification: AppNotification) => {
 };
 
 onMounted(() => {
-  // Load saved notifications
-  loadNotifications();
+  // Load saved notifications only if logged in
+  if (isLoggedIn.value) {
+    loadNotifications();
+  }
   
   // Add click outside listener
   document.addEventListener('click', handleClickOutside);
+});
+
+// Watch for login state changes
+watch(() => isLoggedIn.value, (newValue) => {
+  if (newValue) {
+    loadNotifications();
+  } else {
+    // Hide notifications panel if shown
+    showNotifications.value = false;
+  }
 });
 
 onUnmounted(() => {
@@ -381,6 +400,7 @@ onUnmounted(() => {
     border-radius: 16px 16px 0 0;
     box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.15);
     animation: slideUp 0.3s ease-out;
+    z-index: 2000; /* Higher z-index to ensure it appears above other elements */
   }
   
   .notification-panel::before {
@@ -390,14 +410,24 @@ onUnmounted(() => {
   .notification-header {
     padding: 16px;
     border-bottom: 1px solid #eee;
+    position: sticky;
+    top: 0;
+    background: white;
+    z-index: 10;
   }
   
   .notification-body {
     max-height: calc(80vh - 60px);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
   
   .notification-item {
     padding: 16px;
+  }
+  
+  .notification-actions {
+    opacity: 1; /* Always show delete button on mobile */
   }
   
   .no-notifications {

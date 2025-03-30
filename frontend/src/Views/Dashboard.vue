@@ -52,175 +52,197 @@
         </el-select>
         <el-button 
           type="primary" 
-          :icon="autoRefresh ? 'el-icon-refresh' : 'el-icon-refresh-right'"
           @click="fetchExpenses"
           :loading="isLoading"
         >
+          <i :class="autoRefresh ? 'bi bi-arrow-repeat' : 'bi bi-arrow-clockwise'"></i>
           Refresh Now
         </el-button>
       </div>
     </el-card>
 
     <!-- Summary Cards -->
-    <el-row :gutter="20" class="summary-cards">
-      <el-col :xs="24" :sm="12" :md="6">
-        <el-card class="summary-card total-card">
-          <template #header>
-            <div class="card-header">
-              <i class="bi bi-wallet2"></i>
-              <span>Total Expenses</span>
+    <template v-if="isLoading">
+      <Skeletons name="summary-card" :count="4" />
+      
+      <div style="margin-top: 20px">
+        <el-row :gutter="20">
+          <el-col :xs="24" :lg="14">
+            <Skeletons name="chart" height="350px" />
+          </el-col>
+          <el-col :xs="24" :lg="10">
+            <Skeletons name="chart" height="350px" />
+          </el-col>
+        </el-row>
+      </div>
+      
+      <div style="margin-top: 20px">
+        <Skeletons name="table" :count="5" />
+      </div>
+    </template>
+    
+    <template v-else>
+      <!-- Summary Cards -->
+      <el-row :gutter="20" class="summary-cards">
+        <el-col :xs="24" :sm="12" :md="6">
+          <el-card class="summary-card total-card">
+            <template #header>
+              <div class="card-header">
+                <i class="bi bi-wallet2"></i>
+                <span>Total Expenses</span>
+              </div>
+            </template>
+            <div class="card-amount">₹{{ formatAmount(totalExpenses) }}</div>
+            <div class="card-footer" :class="getTrendClass(expenseTrend)">
+              <i :class="getTrendIcon(expenseTrend)"></i>
+              <span>{{ expenseTrend }}% vs previous period</span>
             </div>
-          </template>
-          <div class="card-amount">₹{{ formatAmount(totalExpenses) }}</div>
-          <div class="card-footer" :class="getTrendClass(expenseTrend)">
-            <i :class="getTrendIcon(expenseTrend)"></i>
-            <span>{{ expenseTrend }}% vs previous period</span>
-          </div>
-        </el-card>
-      </el-col>
+          </el-card>
+        </el-col>
 
-      <el-col :xs="24" :sm="12" :md="6">
-        <el-card class="summary-card average-card">
-          <template #header>
-            <div class="card-header">
-              <i class="bi bi-calendar3"></i>
-              <span>Daily Average</span>
+        <el-col :xs="24" :sm="12" :md="6">
+          <el-card class="summary-card average-card">
+            <template #header>
+              <div class="card-header">
+                <i class="bi bi-calendar3"></i>
+                <span>Daily Average</span>
+              </div>
+            </template>
+            <div class="card-amount">₹{{ formatAmount(dailyAverage) }}</div>
+            <div class="card-footer">
+              <span>Target: ₹{{ formatAmount(dailyTarget) }}</span>
             </div>
-          </template>
-          <div class="card-amount">₹{{ formatAmount(dailyAverage) }}</div>
-          <div class="card-footer">
-            <span>Target: ₹{{ formatAmount(dailyTarget) }}</span>
-          </div>
-        </el-card>
-      </el-col>
+          </el-card>
+        </el-col>
 
-      <el-col :xs="24" :sm="12" :md="6">
-        <el-card class="summary-card category-card">
-          <template #header>
-            <div class="card-header">
-              <i class="bi bi-pie-chart"></i>
-              <span>Top Category</span>
+        <el-col :xs="24" :sm="12" :md="6">
+          <el-card class="summary-card category-card">
+            <template #header>
+              <div class="card-header">
+                <i class="bi bi-pie-chart"></i>
+                <span>Top Category</span>
+              </div>
+            </template>
+            <div class="card-category">
+              <el-tag :type="getCategoryType(topCategory.category)">
+                {{ getCategoryLabel(topCategory.category) }}
+              </el-tag>
             </div>
-          </template>
-          <div class="card-category">
-            <el-tag :type="getCategoryType(topCategory.category)">
-              {{ getCategoryLabel(topCategory.category) }}
-            </el-tag>
-          </div>
-          <div class="card-amount">₹{{ formatAmount(topCategory.amount) }}</div>
-        </el-card>
-      </el-col>
+            <div class="card-amount">₹{{ formatAmount(topCategory.amount) }}</div>
+          </el-card>
+        </el-col>
 
-      <el-col :xs="24" :sm="12" :md="6">
-        <el-card class="summary-card payment-card">
-          <template #header>
-            <div class="card-header">
-              <i class="bi bi-credit-card"></i>
-              <span>Most Used Payment</span>
+        <el-col :xs="24" :sm="12" :md="6">
+          <el-card class="summary-card payment-card">
+            <template #header>
+              <div class="card-header">
+                <i class="bi bi-credit-card"></i>
+                <span>Most Used Payment</span>
+              </div>
+            </template>
+            <div class="card-payment">
+              <el-tag :type="getPaymentType(topPayment.method)">
+                {{ formatPaymentMethod(topPayment.method) }}
+              </el-tag>
             </div>
-          </template>
-          <div class="card-payment">
-            <el-tag :type="getPaymentType(topPayment.method)">
-              {{ formatPaymentMethod(topPayment.method) }}
-            </el-tag>
-          </div>
-          <div class="card-amount">{{ topPayment.count }} transactions</div>
-        </el-card>
-      </el-col>
-    </el-row>
+            <div class="card-amount">{{ topPayment.count }} transactions</div>
+          </el-card>
+        </el-col>
+      </el-row>
 
-    <!-- Charts Section -->
-    <el-row :gutter="20" class="chart-section">
-      <el-col :xs="24" :lg="14">
-        <el-card class="chart-card">
-          <template #header>
-            <div class="card-header">
-              <h3>Expense Trend</h3>
-              <el-radio-group v-model="trendTimeframe" size="small" @change="updateTrendChart">
-                <el-radio-button label="daily">Daily</el-radio-button>
-                <el-radio-button label="weekly">Weekly</el-radio-button>
-                <el-radio-button label="monthly">Monthly</el-radio-button>
-              </el-radio-group>
+      <!-- Charts Section -->
+      <el-row :gutter="20" class="chart-section">
+        <el-col :xs="24" :lg="14">
+          <el-card class="chart-card">
+            <template #header>
+              <div class="card-header">
+                <h3>Expense Trend</h3>
+                <el-radio-group v-model="trendTimeframe" size="small" @change="updateTrendChart">
+                  <el-radio-button label="daily">Daily</el-radio-button>
+                  <el-radio-button label="weekly">Weekly</el-radio-button>
+                  <el-radio-button label="monthly">Monthly</el-radio-button>
+                </el-radio-group>
+              </div>
+            </template>
+            <div class="chart-container">
+              <LineChart 
+                :data="trendData"
+                :height="300"
+                :loading="false"
+              />
             </div>
-          </template>
-          <div class="chart-container">
-            <LineChart 
-              :data="trendData"
-              :height="300"
-              :loading="isLoading"
-            />
-          </div>
-        </el-card>
-      </el-col>
+          </el-card>
+        </el-col>
 
-      <el-col :xs="24" :lg="10">
-        <el-card class="chart-card">
-          <template #header>
-            <div class="card-header">
-              <h3>Category Distribution</h3>
+        <el-col :xs="24" :lg="10">
+          <el-card class="chart-card">
+            <template #header>
+              <div class="card-header">
+                <h3>Category Distribution</h3>
+              </div>
+            </template>
+            <div class="chart-container">
+              <PieChart 
+                :data="categoryData"
+                :height="300"
+                :loading="false"
+              />
             </div>
-          </template>
-          <div class="chart-container">
-            <PieChart 
-              :data="categoryData"
-              :height="300"
-              :loading="isLoading"
-            />
+          </el-card>
+        </el-col>
+      </el-row>
+
+      <!-- Recent Transactions -->
+      <el-card class="transactions-card">
+        <template #header>
+          <div class="card-header">
+            <h3>Recent Transactions</h3>
+            <router-link to="/expence">
+              <el-button type="primary" plain size="small">
+                <i class="bi bi-plus-circle me-2"></i> Add Expense
+              </el-button>
+            </router-link>
           </div>
-        </el-card>
-      </el-col>
-    </el-row>
+        </template>
 
-    <!-- Recent Transactions -->
-    <el-card class="transactions-card">
-      <template #header>
-        <div class="card-header">
-          <h3>Recent Transactions</h3>
-          <router-link to="/expence">
-            <el-button type="primary" plain size="small">
-              <i class="bi bi-plus-circle me-2"></i> Add Expense
-            </el-button>
-          </router-link>
-        </div>
-      </template>
-
-      <el-table 
-        :data="recentTransactions"
-        style="width: 100%"
-        :max-height="400"
-        v-loading="isLoading"
-      >
-        <el-table-column prop="date" label="Date" width="150">
-          <template #default="{ row }">
-            {{ formatDate(row.date) }}
-          </template>
-        </el-table-column>
-        
-        <el-table-column prop="category" label="Category" width="150">
-          <template #default="{ row }">
-            <el-tag :type="getCategoryType(row.category)">
-              {{ getCategoryLabel(row.category) }}
-            </el-tag>
-          </template>
-        </el-table-column>
-        
-        <el-table-column prop="description" label="Description" min-width="200" />
-        
-        <el-table-column prop="amount" label="Amount" width="150" align="right">
-          <template #default="{ row }">
-            ₹{{ formatAmount(row.amount) }}
-          </template>
-        </el-table-column>
-        
-        <el-table-column prop="paymentMethod" label="Payment" width="120">
-          <template #default="{ row }">
-            <el-tag size="small" :type="getPaymentType(row.paymentMethod || 'other')">
-              {{ formatPaymentMethod(row.paymentMethod) }}
-            </el-tag>
-          </template>
-        </el-table-column>
-      </el-table>
-    </el-card>
+        <el-table 
+          :data="recentTransactions"
+          style="width: 100%"
+          :max-height="400"
+          v-loading="false"
+        >
+          <el-table-column prop="date" label="Date" width="150">
+            <template #default="{ row }">
+              {{ formatDate(row.date) }}
+            </template>
+          </el-table-column>
+          
+          <el-table-column prop="category" label="Category" width="150">
+            <template #default="{ row }">
+              <el-tag :type="getCategoryType(row.category)">
+                {{ getCategoryLabel(row.category) }}
+              </el-tag>
+            </template>
+          </el-table-column>
+          
+          <el-table-column prop="description" label="Description" min-width="200" />
+          
+          <el-table-column prop="amount" label="Amount" width="150" align="right">
+            <template #default="{ row }">
+              ₹{{ formatAmount(row.amount) }}
+            </template>
+          </el-table-column>
+          
+          <el-table-column prop="paymentMethod" label="Payment" width="120">
+            <template #default="{ row }">
+              <el-tag size="small" :type="getPaymentType(row.paymentMethod || 'other')">
+                {{ formatPaymentMethod(row.paymentMethod) }}
+              </el-tag>
+            </template>
+          </el-table-column>
+        </el-table>
+      </el-card>
+    </template>
   </div>
 </template>
 
@@ -231,6 +253,7 @@ import { ElMessage } from 'element-plus';
 import axios from 'axios';
 import LineChart from '@/components/charts/LineChart.vue';
 import PieChart from '@/components/charts/PieChart.vue';
+import Skeletons from '@/components/ui/Skeletons.vue';
 import { useIntervalFn } from '@vueuse/core';
 import { watch } from 'vue';
 

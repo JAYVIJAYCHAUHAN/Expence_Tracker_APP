@@ -108,21 +108,25 @@
     </el-card>
 
     <!-- Recent Expenses Table -->
-    <div class="recent-expenses">
-      <div class="section-header">
+    <div class="expenses-list">
+      <div class="list-header">
         <h3>Recent Expenses</h3>
-        <div class="header-actions">
+        <div class="search-container">
           <el-input
             v-model="searchQuery"
             placeholder="Search expenses"
-            style="width: 200px"
+            clearable
           >
             <template #prefix>
               <i class="bi bi-search"></i>
             </template>
           </el-input>
-          <el-select v-model="filterCategory" placeholder="All Categories" style="width: 150px">
-            <el-option label="All Categories" value="" />
+          <el-select
+            v-model="filterCategory"
+            placeholder="All Categories"
+            clearable
+            style="margin-left: 12px"
+          >
             <el-option
               v-for="category in categories"
               :key="category.value"
@@ -132,11 +136,19 @@
           </el-select>
         </div>
       </div>
-
+      
+      <!-- Skeleton loader while loading -->
+      <Skeletons 
+        v-if="isLoading" 
+        name="expense-list" 
+        :count="5"
+      />
+      
+      <!-- Actual data when loaded -->
       <el-table 
+        v-else
         :data="filteredExpenses"
         style="width: 100%"
-        v-loading="isLoading"
       >
         <el-table-column prop="date" label="Date" width="160">
           <template #default="{ row }">
@@ -217,6 +229,7 @@ import { ElMessage, ElMessageBox,  } from 'element-plus';
 import { computed, onMounted, ref } from 'vue';
 import type { FormInstance } from 'element-plus';
 import type { Expense } from '@/type/types';
+import Skeletons from '@/components/ui/Skeletons.vue';
 const API_URL =  import.meta.env.VITE_API_URL;
 
 // Form data
@@ -526,26 +539,26 @@ onMounted(() => {
   color: #333;
 }
 
-.recent-expenses {
+.expenses-list {
   background: white;
   border-radius: 8px;
   padding: 24px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-.section-header {
+.list-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
 }
 
-.section-header h3 {
+.list-header h3 {
   margin: 0;
   color: #333;
 }
 
-.header-actions {
+.search-container {
   display: flex;
   gap: 16px;
 }
@@ -561,7 +574,7 @@ onMounted(() => {
     padding: 16px;
   }
 
-  .header-actions {
+  .search-container {
     flex-direction: column;
     gap: 8px;
   }

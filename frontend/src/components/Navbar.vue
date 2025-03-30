@@ -23,11 +23,15 @@
           </router-link>
         </li>
         <li class="nav-item">
-          <router-link to="/subscription" class="nav-link" v-if="isAuthenticated">
-            <i class="bi bi-star"></i>
-            <span>Subscription</span>
+          <router-link to="/report" class="nav-link" v-if="isAuthenticated">
+            <i class="bi bi-bar-chart"></i> Report
           </router-link>
         </li>
+        <!-- Subscription link hidden temporarily -->
+        <!-- <router-link to="/subscription" class="nav-link" v-if="isAuthenticated">
+          <i class="bi bi-star"></i>
+          <span>Subscription</span>
+        </router-link> -->
       </ul>
     </div>
     <button class="toggle-btn" @click="toggleSidebar">
@@ -56,9 +60,18 @@
               </router-link>
             </li>
             <li class="nav-item">
-              <router-link to="/subscription" class="nav-link" v-if="isAuthenticated">
-                <i class="bi bi-star"></i>
-                <span>Subscription</span>
+              <router-link to="/report" class="nav-link" v-if="isAuthenticated">
+                <i class="bi bi-bar-chart"></i> Report
+              </router-link>
+            </li>
+            <!-- Subscription link hidden temporarily -->
+            <!-- <router-link to="/subscription" class="nav-link" v-if="isAuthenticated">
+              <i class="bi bi-star"></i>
+              <span>Subscription</span>
+            </router-link> -->
+            <li class="nav-item">
+              <router-link to="/settings" class="nav-link" v-if="isAuthenticated">
+                <i class="fas fa-cog"></i> Settings
               </router-link>
             </li>
           </ul>

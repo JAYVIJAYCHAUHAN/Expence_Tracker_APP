@@ -68,12 +68,12 @@ axios.interceptors.request.use(
     config.headers['X-App-Version'] = APP_VERSION;
     
     // Log sanitized request (no sensitive data)
-    console.info('API Request:', sanitizeRequestData(config));
+    // console.info('API Request:', sanitizeRequestData(config));
     
     return config;
   },
   (error) => {
-    console.error('API Request Error:', error);
+    // console.error('API Request Error:', error);
     return Promise.reject(error);
   }
 );

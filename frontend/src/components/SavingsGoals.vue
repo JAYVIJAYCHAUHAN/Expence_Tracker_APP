@@ -110,6 +110,7 @@
             :precision="0" 
             style="width: 100%"
             :controls="false"
+            placeholder="0"
           ></el-input-number>
         </el-form-item>
         
@@ -156,6 +157,8 @@
       v-model="depositDialogVisible"
       title="Add Deposit"
       width="400px"
+      class="deposit-dialog"
+      :close-on-click-modal="false"
     >
       <el-form :model="depositAmount" label-position="top" ref="depositForm">
         <el-form-item label="Deposit Amount (₹)" prop="amount">
@@ -486,6 +489,13 @@ const addDeposit = async () => {
   const goalIndex = goals.value.findIndex(g => g.id === selectedGoalId.value);
   if (goalIndex === -1) return;
   
+  // Prevent multiple submissions
+  const submitButton = document.querySelector('.deposit-dialog .el-button--primary');
+  if (submitButton) {
+    submitButton.setAttribute('disabled', 'disabled');
+    submitButton.textContent = 'Saving...';
+  }
+  
   // Prepare deposit object
   const newDeposit = {
     amount: depositAmount.value.amount,
@@ -551,6 +561,12 @@ const addDeposit = async () => {
   } catch (error) {
     console.error('Failed to add deposit:', error);
     ElMessage.error('Failed to add deposit. Please try again.');
+  } finally {
+    // Enable submit button
+    if (submitButton) {
+      submitButton.removeAttribute('disabled');
+      submitButton.textContent = 'Save Deposit';
+    }
   }
 };
 
@@ -606,6 +622,7 @@ onMounted(async () => {
       const sampleGoal = {
         name: 'Emergency Fund',
         targetAmount: 100000,
+        currentAmount: 25000, // Ensure initial amount is set
         targetDate: new Date(new Date().setMonth(new Date().getMonth() + 6)),
         icon: 'bi bi-piggy-bank',
         description: 'Building a 3-month emergency fund for unexpected expenses'
@@ -840,6 +857,50 @@ onMounted(async () => {
   
   .goal-details {
     grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+  }
+  
+  .saved-amount {
+    font-size: 1.2rem;
+  }
+  
+  .goal-header {
+    flex-wrap: wrap;
+  }
+  
+  .goal-actions {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+  }
+  
+  .goal-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 1.2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .goal-details {
+    grid-template-columns: 1fr;
+    text-align: left;
+  }
+  
+  .detail-item {
+    text-align: left;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .detail-label {
+    margin-bottom: 0;
+  }
+  
+  .goal-card {
+    position: relative;
+    padding-top: 0.5rem;
   }
 }
 </style> 

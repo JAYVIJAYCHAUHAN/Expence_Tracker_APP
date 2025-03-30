@@ -34,6 +34,11 @@
             <i class="bi bi-gear nav-icon"></i>
           </el-menu-item>
         </el-tooltip>
+        <!-- <el-tooltip content="Subscription" placement="bottom" effect="light">
+          <el-menu-item index="/subscription" :route="{ name: 'Subscription' }" class="nav-item">
+            <i class="bi bi-star nav-icon"></i>
+          </el-menu-item>
+        </el-tooltip> -->
       </el-menu>
       <div class="nav-actions">
         <NotificationCenter />
@@ -68,6 +73,11 @@
           <i class="bi bi-gear nav-icon"></i>
           <span>Settings</span>
         </el-menu-item>
+        <!-- Subscription feature hidden temporarily -->
+        <!-- <el-menu-item index="/subscription" :route="{ name: 'Subscription' }" class="sidebar-item">
+          <i class="bi bi-star nav-icon"></i>
+          <span>Subscription</span>
+        </el-menu-item> -->
       </el-menu>
       <div class="nav-actions-sidebar">
         <NotificationCenter />

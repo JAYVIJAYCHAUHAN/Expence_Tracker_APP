@@ -35,12 +35,12 @@ const defaultFeatures: Record<Feature, FeatureConfig> = {
     description: 'Earn points and achievements as you track expenses',
     enabled: true
   },
-  [Feature.DARK_MODE]: {
-    id: Feature.DARK_MODE,
-    name: 'Dark Mode',
-    description: 'Switch between light and dark themes',
-    enabled: true
-  },
+  // [Feature.DARK_MODE]: {
+  //   id: Feature.DARK_MODE,
+  //   name: 'Dark Mode',
+  //   description: 'Switch between light and dark themes',
+  //   enabled: true
+  // },
   [Feature.SAVINGS_GOALS]: {
     id: Feature.SAVINGS_GOALS,
     name: 'Savings Goals',
