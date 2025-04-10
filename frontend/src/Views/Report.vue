@@ -14,6 +14,8 @@
             start-placeholder="Start Date"
             end-placeholder="End Date"
             :shortcuts="dateShortcuts"
+            style="width: 330px;"
+
             @change="handleDateChange"
           />
           <div class="text-right">  
