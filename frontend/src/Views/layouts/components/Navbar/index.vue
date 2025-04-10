@@ -2,7 +2,7 @@
   <div class="nav-wrapper" :class="{ 'nav-shadow': scrolled }">
     <div class="logo-header">
       <div class="logo">
-        <img src="@/assets/images/logo.jpeg" alt="Expense Tracker" class="logo-image" />
+        <img src="@/assets/images/new_logo.jpeg" alt="Expense Tracker" class="logo-image" />
         <span class="tracker-title">Expense Tracker</span>
       </div>
     </div>
@@ -49,7 +49,7 @@
     <!-- Sidebar for Small Screens -->
     <div class="sidebar" :class="{ active: isActive }" v-if="isSmallScreen">
       <div class="sidebar-header">
-        <img src="@/assets/images/logo.jpeg" alt="Expense Tracker" class="sidebar-logo" />
+        <img src="@/assets/images/new_logo.jpeg" alt="Expense Tracker" class="sidebar-logo" />
         <span class="tracker-title">Expense Tracker</span>
       </div>
       <el-menu mode="vertical" @select="handleSelect" :router="true" class="sidebar-menu">

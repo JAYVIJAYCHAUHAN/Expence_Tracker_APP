@@ -119,7 +119,7 @@
       </template>
       <div class="team-section">
         <div class="team-member">
-          <img src="@/assets/images/logo.jpeg" alt="Developer" class="team-avatar" />
+          <img src="@/assets/images/new_logo.jpeg" alt="Developer" class="team-avatar" />
           <div class="team-info">
             <h3>Jayvijay Chauhan</h3>
             <p>Lead Developer</p>
