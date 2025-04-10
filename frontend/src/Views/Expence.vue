@@ -125,7 +125,7 @@
             v-model="filterCategory"
             placeholder="All Categories"
             clearable
-            style="margin-left: 12px"
+           
           >
             <el-option
               v-for="category in categories"
@@ -180,29 +180,27 @@
           </template>
         </el-table-column>
         
-        <el-table-column label="Actions" width="150" fixed="right">
+        <el-table-column label="Actions" width="100">
           <template #default="{ row }">
-            <el-button-group>
+            <div class="d-flex gap-2">
               <el-button
                 size="small"
                 type="primary"
                 @click="editExpense(row)"
                 :icon="Edit"
-                 class="mb-2"
-              >
-                Edit
-              </el-button>
+                circle
+              />
               <el-button
                 size="small"
                 type="danger"
                 @click="deleteExpense(row)"
                 :icon="Delete"
-              >
-                Delete
-              </el-button>
-            </el-button-group>
+                circle
+              />
+            </div>
           </template>
         </el-table-column>
+
       </el-table>
 
       <!-- Pagination -->
@@ -215,6 +213,7 @@
           layout="total, sizes, prev, pager, next"
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
+          class="pagination-container"
         />
       </div>
     </div>
@@ -568,7 +567,6 @@ onMounted(() => {
   display: flex;
   justify-content: flex-end;
 }
-
 @media (max-width: 768px) {
   .expense-container {
     padding: 16px;
@@ -584,5 +582,12 @@ onMounted(() => {
     flex-direction: column;
     gap: 8px;
   }
+  
+}
+</style>
+
+<style>
+.el-pagination {
+  --el-pagination-button-width: 0px !important;
 }
 </style>

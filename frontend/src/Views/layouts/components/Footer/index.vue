@@ -4,7 +4,7 @@
       <!-- Company Info Section -->
       <div class="footer-section">
         <div class="company-info">
-          <img src="@/assets/images/logo.jpeg" alt="Expense Tracker" class="footer-logo" />
+          <img src="@/assets/images/new_logo.jpeg" alt="Expense Tracker" class="footer-logo" />
           <h3 class="company-name">Expense Tracker</h3>
            <p class="company-description">With ❤️ from Kharka</p>
           <p class="company-description">
