@@ -161,7 +161,7 @@
   <el-dialog
     v-model="showEditBudgetDialog"
     title="Edit Monthly Budget"
-    width="400px"
+    width="370px"
   >
     <div>
       <p class="text-muted mb-3">Set your target spending limit for each month</p>
@@ -396,6 +396,7 @@ const fetchExpenses = async () => {
 // Methods
 const handleMonthChange = () => {
   // Month changes are handled by the watch on selectedMonth
+  
 };
 
 const getDaysRemaining = () => {
@@ -592,6 +593,7 @@ onMounted(async () => {
   font-size: 1rem;
   padding: 8px 16px;
   cursor: pointer;
+  color: #17d9e0;
   transition: all 0.3s ease;
 }
 

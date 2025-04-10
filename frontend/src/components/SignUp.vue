@@ -157,7 +157,6 @@ async function handleSubmit() {
     isLoginModalVisible.value = true; // Open login modal after successful signup
   } catch (error: unknown) {
     ElMessage.error(error instanceof Error ? error.message : 'Failed to create account');
-    console.error(error);
   } finally {
     isSubmitting.value = false;
   }
