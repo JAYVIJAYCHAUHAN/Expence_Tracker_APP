@@ -28,3 +28,9 @@ export interface Subscription {
   trialPeriod: string;
   
 }
+export interface Stats {
+  userCount: number;
+  expenseCount: Array<{totalAmount: number}>;
+  satisfactionRate: number;
+}
+

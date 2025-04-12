@@ -25,21 +25,24 @@ const setupDemoData = async () => {
         amount: 150.50,
         category: 'Food',
         date: currentDate,
-        user: demoUser._id
+        user: demoUser._id,
+        paymentMethod: 'cash'
       },
       {
         description: 'Internet Bill',
         amount: 60.00,
         category: 'Utilities',
         date: new Date(currentDate.getTime() - 2 * 24 * 60 * 60 * 1000),
-        user: demoUser._id
+        user: demoUser._id,
+        paymentMethod: 'cash'
       },
       {
         description: 'Movie Tickets',
         amount: 30.00,
         category: 'Entertainment',
         date: new Date(currentDate.getTime() - 5 * 24 * 60 * 60 * 1000),
-        user: demoUser._id
+        user: demoUser._id,
+        paymentMethod: 'cash'
       }
     ];
 

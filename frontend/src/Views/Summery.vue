@@ -69,7 +69,7 @@
               <span class="amount">₹{{ formatAmount(category.amount) }}</span>
             </div>
             <el-progress 
-              :percentage="(category.amount / monthlyBudget) * 100" 
+            :percentage="monthlyBudget ? (category.amount / monthlyBudget) * 100 : 0" 
               :stroke-width="8"
               :show-text="false"
             />
@@ -443,7 +443,7 @@ const getCategoryType = (category: string) => {
     'Bills': 'warning',
     'Others': 'info'
   };
-  return types[category] || 'default';
+  return types[category] || 'info';
 };
 
 const getActivityType = (category: string) => {
@@ -456,7 +456,7 @@ const getActivityType = (category: string) => {
     'Bills': 'warning',
     'Others': 'info'
   };
-  return types[category] || 'primary';
+  return types[category] || 'info';
 };
 
 // Calculate total savings and progress

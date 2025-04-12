@@ -13,6 +13,7 @@ const savingsGoalsRoutes = require('./routes/savings-goals.routes');
 const budgetRoutes = require('./routes/budget.routes');
 const settingsRoutes = require('./routes/settings.routes');
 const subscriptionRoutes = require('./routes/subscription.routes');
+const statsRoutes = require('./routes/stats');
 
 dotenv.config();
 
@@ -24,6 +25,9 @@ const MONGO_URL = process.env.MONGO_URL || 'mongodb://localhost:27017/expense-tr
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
+
+// Stats route
+app.use('/api/stats', statsRoutes);
 
 // Routes
 // Auth routes (public)

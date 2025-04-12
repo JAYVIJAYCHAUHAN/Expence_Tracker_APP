@@ -55,7 +55,7 @@
       <div class="footer-links">
         <router-link to="/about" class="footer-link">About</router-link>
         <span class="link-divider">|</span>
-        <a href="https://github.com/JAYVIJAYCHAUHAN/expense-tracker" target="_blank" class="footer-link">GitHub</a>
+        <a href="https://github.com/JAYVIJAYCHAUHAN/Expence_Tracker_APP" target="_blank" class="footer-link">GitHub</a>
       </div>
       <p class="version">Version {{ appVersion }} - <span class="secure-tag">Secured</span></p>
     </div>

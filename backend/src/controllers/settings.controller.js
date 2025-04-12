@@ -211,16 +211,16 @@ const updateUserProgress = async (req, res) => {
     // Get or create settings
     const settings = await ensureUserSettings(req.user.userId);
     
-    // Update progress
-    if (level !== undefined) settings.progress.level = level;
-    if (points !== undefined) settings.progress.points = points;
-    if (streak !== undefined) settings.progress.streak = streak;
-    if (nextLevelPoints !== undefined) settings.progress.nextLevelPoints = nextLevelPoints;
-    
+    // Create update object with only defined fields
+    const updateObj = {};
+    if (level !== undefined) updateObj['progress.level'] = level;
+    if (points !== undefined) updateObj['progress.points'] = points; 
+    if (streak !== undefined) updateObj['progress.streak'] = streak;
+    if (nextLevelPoints !== undefined) updateObj['progress.nextLevelPoints'] = nextLevelPoints;
+
     // Update achievements if provided
     if (achievements && Array.isArray(achievements)) {
-      // Convert achievements to the format expected by the model
-      settings.progress.achievements = achievements.map(a => ({
+      updateObj['progress.achievements'] = achievements.map(a => ({
         id: a.id,
         title: a.title,
         description: a.description,
@@ -229,11 +229,20 @@ const updateUserProgress = async (req, res) => {
         earnedAt: a.earnedAt ? new Date(a.earnedAt) : new Date()
       }));
     }
-    
-    await settings.save();
-    
+
+    // Use findOneAndUpdate to avoid version conflicts
+    const updatedSettings = await UserSettings.findOneAndUpdate(
+      { userId: req.user.userId },
+      { $set: updateObj },
+      { new: true }
+    );
+
+    if (!updatedSettings) {
+      return res.status(404).json({ message: 'User settings not found' });
+    }
+
     // Format achievements for response
-    const formattedAchievements = settings.progress.achievements.map(a => ({
+    const formattedAchievements = updatedSettings.progress.achievements.map(a => ({
       id: a.id,
       title: a.title,
       description: a.description,
@@ -241,14 +250,15 @@ const updateUserProgress = async (req, res) => {
       points: a.points,
       earnedAt: a.earnedAt.getTime()
     }));
-    
+
     return res.status(200).json({
-      level: settings.progress.level,
-      points: settings.progress.points,
-      streak: settings.progress.streak,
+      level: updatedSettings.progress.level,
+      points: updatedSettings.progress.points,
+      streak: updatedSettings.progress.streak,
       achievements: formattedAchievements,
-      nextLevelPoints: settings.progress.nextLevelPoints
+      nextLevelPoints: updatedSettings.progress.nextLevelPoints
     });
+
   } catch (error) {
     console.error('Error updating user progress:', error);
     return res.status(500).json({ message: 'Failed to update user progress' });
