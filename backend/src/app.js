@@ -14,6 +14,7 @@ const budgetRoutes = require('./routes/budget.routes');
 const settingsRoutes = require('./routes/settings.routes');
 const subscriptionRoutes = require('./routes/subscription.routes');
 const statsRoutes = require('./routes/stats');
+const noteRoutes = require('./routes/note.routes');
 
 dotenv.config();
 
@@ -43,6 +44,7 @@ app.use('/api/expenses', expenseRoutes);
 app.use('/api/savings-goals', savingsGoalsRoutes);
 app.use('/api/budgets', budgetRoutes);
 app.use('/api/settings', settingsRoutes);
+app.use('/api/notes', noteRoutes);
 
 // Health check route
 app.get('/api/health', (req, res) => {

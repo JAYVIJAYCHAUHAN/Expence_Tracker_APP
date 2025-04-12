@@ -2,6 +2,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const UserSettings = require('../models/UserSettings');
+const crypto = require('crypto');
 
 /**
  * Register a new user
@@ -21,15 +22,11 @@ const register = async (req, res) => {
       return res.status(400).json({ message: 'User already exists with this email' });
     }
     
-    // Hash password
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-    
-    // Create new user
+    // Create new user (the password will be hashed by the pre-save hook)
     const newUser = new User({
       name,
       email,
-      password: hashedPassword
+      password
     });
     
     const savedUser = await newUser.save();
@@ -90,13 +87,12 @@ const login = async (req, res) => {
     
     // Find user by email
     const user = await User.findOne({ email });
-    
     if (!user) {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
     
-    // Check password
-    const isPasswordValid = await bcrypt.compare(password, user.password);
+    // Check password using the model's comparePassword method
+    const isPasswordValid = await user.comparePassword(password);
     
     if (!isPasswordValid) {
       return res.status(401).json({ message: 'Invalid credentials' });
@@ -156,6 +152,106 @@ const validateToken = async (req, res) => {
 };
 
 /**
+ * Request password reset
+ */
+const requestPasswordReset = async (req, res) => {
+  try {
+    const { email } = req.body;
+    
+    if (!email) {
+      return res.status(400).json({ message: 'Email is required' });
+    }
+    
+    // Find user by email
+    const user = await User.findOne({ email });
+    
+    if (!user) {
+      return res.status(404).json({ message: 'User not found with this email' });
+    }
+    
+    // Generate random token
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    
+    // Hash the token and store it in the user document
+    const salt = await bcrypt.genSalt(10);
+    const hashedToken = await bcrypt.hash(resetToken, salt);
+    
+    // Set token and expiration (1 hour from now)
+    user.resetPasswordToken = hashedToken;
+    user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
+    
+    await user.save();
+    
+    // Simulate sending an email
+    const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/reset-password/${user._id}/${resetToken}`;
+    console.log('Email would be sent to:', email);
+    console.log('Reset URL:', resetUrl);
+    console.log('Token valid for 1 hour');
+    
+    // Return the reset token (in a real app, you wouldn't send this directly)
+    // We're returning this for the demo purpose
+    return res.status(200).json({ 
+      message: 'Password reset instructions sent to your email. Please check your inbox.',
+      resetToken,
+      userId: user._id
+    });
+  } catch (error) {
+    console.error('Password reset request error:', error);
+    return res.status(500).json({ message: 'Server error during password reset request' });
+  }
+};
+
+/**
+ * Reset password using token
+ */
+const resetPassword = async (req, res) => {
+  try {
+    const { userId, token, newPassword } = req.body;
+    
+    if (!userId || !token || !newPassword) {
+      return res.status(400).json({ message: 'User ID, token, and new password are required' });
+    }
+    
+    // Find user by ID
+    const user = await User.findById(userId);
+    
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    
+    // Check if reset token exists and is valid
+    if (!user.resetPasswordToken || !user.resetPasswordExpires) {
+      return res.status(400).json({ message: 'Invalid password reset token' });
+    }
+    
+    // Check if token has expired
+    if (user.resetPasswordExpires < Date.now()) {
+      return res.status(400).json({ message: 'Password reset token has expired' });
+    }
+    
+    // Verify the token
+    const isValidToken = await bcrypt.compare(token, user.resetPasswordToken);
+    
+    if (!isValidToken) {
+      return res.status(400).json({ message: 'Invalid password reset token' });
+    }
+    
+    // Update password and clear reset token fields
+    // The password will be hashed by the pre-save hook
+    user.password = newPassword;
+    user.resetPasswordToken = null;
+    user.resetPasswordExpires = null;
+    
+    await user.save();
+    
+    return res.status(200).json({ message: 'Password reset successful' });
+  } catch (error) {
+    console.error('Password reset error:', error);
+    return res.status(500).json({ message: 'Server error during password reset' });
+  }
+};
+
+/**
  * Generate JWT token
  */
 const generateAuthToken = (userId) => {
@@ -171,5 +267,7 @@ module.exports = {
   register,
   login,
   logout,
-  validateToken
+  validateToken,
+  requestPasswordReset,
+  resetPassword
 }; 

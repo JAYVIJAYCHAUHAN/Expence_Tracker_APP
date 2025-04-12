@@ -5,11 +5,14 @@ import Report from "@/Views/Report.vue";
 import AppLayout from "@/Views/layouts/AppLayout.vue";
 import Login from '@/components/Login.vue';
 import SignUp from '@/components/SignUp.vue';
+import ForgotPassword from '@/components/ForgotPassword.vue';
+import ResetPassword from '@/components/ResetPassword.vue';
 import Dashboard from '@/Views/Dashboard.vue';
 import Profile from '@/components/Profile.vue';
 import Expence from "@/Views/Expence.vue";
 import About from "@/Views/About.vue";
 import Settings from "@/Views/Settings.vue";
+import Notes from "@/Views/Notes.vue";
 
 const routes = [
   {
@@ -47,6 +50,12 @@ const routes = [
         meta: { requiresAuth: true }
       },
       {
+        path: "notes",
+        name: "Notes",
+        component: Notes,
+        meta: { requiresAuth: true }
+      },
+      {
         path: "profile",
         name: "Profile",
         component: Profile,
@@ -75,6 +84,16 @@ const routes = [
     path: "/login",
     name: "Login",
     component: Login,
+  },
+  {
+    path: "/forgot-password",
+    name: "ForgotPassword",
+    component: ForgotPassword,
+  },
+  {
+    path: "/reset-password/:userId/:token",
+    name: "ResetPassword",
+    component: ResetPassword,
   },
   /* Subscription route hidden temporarily
   {

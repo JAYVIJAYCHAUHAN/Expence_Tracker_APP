@@ -55,7 +55,7 @@
                 <p class="amount">₹{{ formatAmount(totalExpenses) }}</p>
                 <p class="trend" :class="{ 'positive': expenseTrend < 0, 'negative': expenseTrend > 0 }">
                   <i :class="expenseTrend > 0 ? 'bi bi-arrow-up' : 'bi bi-arrow-down'"></i>
-                  {{ Math.abs(expenseTrend) }}% from last period
+                  {{ Math.abs(expenseTrend).toFixed(2) }}% from last period
                 </p>
               </div>
             </div>

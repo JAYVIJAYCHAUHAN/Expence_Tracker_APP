@@ -7,6 +7,17 @@ export interface Expense {
   paymentMethod: string;
 }
 
+export interface Note {
+  _id: string;
+  title: string;
+  content: string;
+  color: string;
+  isPinned: boolean;
+  tags: string[];
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface TrendData {
   date: string;
   amount: number;
