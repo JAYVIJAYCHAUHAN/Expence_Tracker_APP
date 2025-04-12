@@ -48,7 +48,7 @@ export function usePwa() {
     deferredPrompt.value = null;
     isInstallable.value = false;
     
-    // Could dispatch an event or call an analytics function here
+    // Mark as installed
     localStorage.setItem('pwa-installed', 'true');
   };
 
@@ -62,6 +62,7 @@ export function usePwa() {
     // Check if the app is already installed
     if (window.matchMedia('(display-mode: standalone)').matches) {
       console.log('App is running in standalone mode (already installed)');
+      localStorage.setItem('pwa-installed', 'true');
     }
   });
 
