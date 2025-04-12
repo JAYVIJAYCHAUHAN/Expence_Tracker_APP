@@ -49,6 +49,7 @@ export function usePwa() {
     isInstallable.value = false;
     
     // Could dispatch an event or call an analytics function here
+    localStorage.setItem('pwa-installed', 'true');
   };
 
   onMounted(() => {

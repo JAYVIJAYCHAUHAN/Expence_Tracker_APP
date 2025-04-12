@@ -43,8 +43,9 @@ const showPrompt = ref(false);
 // Show the prompt immediately in development
 onMounted(() => {
   // For testing purposes, show the prompt right away
-  showPrompt.value = true;
-  
+  if (localStorage.getItem('pwa-installed')) {
+    showPrompt.value = false; // Don't show the prompt
+  }
   // In a real app, you would want to delay this
   // setTimeout(() => {
   //   if (isInstallable.value && !localStorage.getItem('pwa-dismissed')) {
