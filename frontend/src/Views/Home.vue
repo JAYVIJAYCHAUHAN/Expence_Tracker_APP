@@ -20,15 +20,16 @@
         </div>
         <div class="hero-stats">
           <div class="stat-item">
-            <h3>{{ totalUsers }}+</h3>
+            <el-statistic :value="UserTransitionValue" :suffix="'+'"></el-statistic>
             <p>Active Users</p>
           </div>
           <div class="stat-item">
-            <h3>{{ formatNumber(totalExpenses) }}+</h3>
+            <el-statistic :value="ExpenseTransitionValue" :formatter="formatNumber"> 
+    </el-statistic>
             <p>Expenses Tracked</p>
           </div>
           <div class="stat-item">
-            <h3>98%</h3>
+            <el-statistic :value="SatisfactionTransitionValue" :suffix="'%'"></el-statistic>
             <p>Satisfaction Rate</p>
           </div>
         </div>
@@ -102,34 +103,49 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
-import { useRouter } from "vue-router";
+import { Stats } from "@/type/types";
+import { statsApi } from "@/utils/api";
+import { useTransition } from '@vueuse/core';
 import axios from 'axios';
 import { ElMessage } from 'element-plus';
-
+import { computed, onMounted, ref } from "vue";
+import { useRouter } from "vue-router";
 const router = useRouter();
 const showDemoModal = ref(false);
 const totalUsers = ref(0);
 const totalExpenses = ref(0);
 const isAuthenticated = ref(false);
-
+const stats = ref<Stats | {}>({});
 const API_URL = import.meta.env.VITE_API_URL;
+const satisfactionRate = ref(0);
 
 // Fetch stats
 const fetchStats = async () => {
   try {
-    const response = await axios.get(`${API_URL}/stats`);
-    totalUsers.value = response.data.userCount + 100; // Add 100 to actual user count
-    totalExpenses.value = response.data.expenseCount || 10000;
+    const response = await statsApi.getStats();
+    stats.value = response;
+    // Update the display values with type safety
+    if ('userCount' in stats.value) {
+      totalUsers.value = stats.value.userCount*10 || 10000;
+    } else {
+      totalUsers.value = 10000;
+    }
+    
+    if ('expenseCount' in stats.value && Array.isArray(stats.value.expenseCount) && stats.value.expenseCount.length > 0) {
+      totalExpenses.value = stats.value.expenseCount[0]?.totalAmount || 50000;
+    } else {
+      totalExpenses.value = 50000;
+    }
   } catch (error) {
-    // Fallback values if API fails
-    totalUsers.value = 1100;
-    totalExpenses.value = 10000;
+    // Fallback values in case of error
+    totalUsers.value = 10000;
+    totalExpenses.value = 50000;
   }
 };
+// 
 
 // Format large numbers
-const formatNumber = (num: number) => {
+const formatNumber = (num: number): string => {
   if (num >= 1000000) {
     return (num / 1000000).toFixed(1) + 'M';
   }
@@ -138,7 +154,17 @@ const formatNumber = (num: number) => {
   }
   return num.toString();
 };
-
+const UserTransitionValue = useTransition(totalUsers, {
+  duration: 1500,
+})
+const ExpenseTransitionValue = useTransition(totalExpenses, {
+  duration: 1500,
+})
+const SatisfactionTransitionValue = useTransition(satisfactionRate, {
+  duration: 1500,
+})
+satisfactionRate.value = 98;
+ 
 // Check authentication
 const checkAuth = () => {
   const token = localStorage.getItem('token');
@@ -484,6 +510,12 @@ onMounted(() => {
   .stat-item h3 {
     font-size: 1.5rem;
   }
+}
+</style>
+<style>
+.stat-item .el-statistic__content {
+   font-size: 1.5rem;
+  color: #00c4cc;
 }
 </style>
 

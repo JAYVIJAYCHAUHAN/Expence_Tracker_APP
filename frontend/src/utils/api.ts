@@ -46,6 +46,24 @@ apiClient.interceptors.response.use(
   }
 );
 
+// Stats API
+export const statsApi = {
+  getStats: async () => {
+    try {
+      const response = await apiClient.get('/stats');
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching stats:', error);
+      // Return default values if API fails
+      return {
+        userCount: 10000,
+        expenseCount: [{ totalAmount: 50000 }],
+        satisfactionRate: 98
+      };
+    }
+  }
+};
+
 // Authentication API
 export const authApi = {
   login: (email: string, password: string) => {

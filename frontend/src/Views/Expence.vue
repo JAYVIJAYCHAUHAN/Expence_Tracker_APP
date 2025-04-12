@@ -474,7 +474,7 @@ const getCategoryType = (category: string) => {
     'education': 'info',
     'others': 'info'
   };
-  return types[category] || 'default';
+  return types[category] || 'primary';
 };
 
 const getPaymentType = (method: string) => {
@@ -484,7 +484,7 @@ const getPaymentType = (method: string) => {
     'upi': 'warning',
     'other': 'info'
   };
-  return types[method] || 'default';
+  return types[method] || 'primary';
 };
 
 const formatPaymentMethod = (method: string) => {

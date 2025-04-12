@@ -489,6 +489,13 @@ const saveNotificationSettings = async () => {
 const clearCache = async () => {
   try {
     await settingsApi.clearUserCache();
+    localStorage.removeItem('feature_savings_goals');
+    localStorage.removeItem('feature_budget_tips');
+    localStorage.removeItem('feature_data_export');
+    localStorage.removeItem('feature_progress_tracking');
+    localStorage.removeItem('notification_settings');
+    
+
     ElMessage.success('App cache cleared successfully');
   } catch (error) {
     console.error('Failed to clear cache:', error);

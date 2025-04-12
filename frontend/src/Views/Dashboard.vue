@@ -276,7 +276,7 @@ const dailyTarget = 2000; // This could be made configurable in user settings
 
 // State
 const isLoading = ref(false);
-const dateRange = ref('month');
+const dateRange = ref('week');
 const customDateRange = ref<[Date, Date] | null>(null);
 const trendTimeframe = ref('daily');
 const expenses = ref<Expense[]>([]);
@@ -531,7 +531,7 @@ const getCategoryType = (category: string) => {
     'education': 'info',
     'others': 'info'
   };
-  return types[category] || 'default';
+  return types[category] || 'primary';
 };
 
 const getPaymentType = (method: string) => {
@@ -541,7 +541,7 @@ const getPaymentType = (method: string) => {
     'upi': 'warning',
     'other': 'info'
   };
-  return types[method] || 'default';
+  return types[method] || 'primary';
 };
 
 const formatPaymentMethod = (method: string) => {
