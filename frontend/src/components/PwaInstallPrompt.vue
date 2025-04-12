@@ -40,23 +40,44 @@ import { usePwa } from '@/composables/usePwa';
 const { isInstallable, promptInstall } = usePwa();
 const showPrompt = ref(false);
 
-// Show the prompt immediately in development
+// Show the prompt when the app becomes installable
 onMounted(() => {
-  // For testing purposes, show the prompt right away
-  if (localStorage.getItem('pwa-installed')) {
-    showPrompt.value = false; // Don't show the prompt
+  // Only check if already installed, don't check for pwa-installed
+  // which now only indicates that app has been installed, not that the prompt is available
+  if (window.matchMedia('(display-mode: standalone)').matches) {
+    // Already installed as standalone app, don't show prompt
+    return;
   }
-  // In a real app, you would want to delay this
-  // setTimeout(() => {
-  //   if (isInstallable.value && !localStorage.getItem('pwa-dismissed')) {
-  //     showPrompt.value = true;
-  //   }
-  // }, 30000);
+
+  // If user previously dismissed, respect that choice
+  const dismissed = localStorage.getItem('pwa-dismissed');
+  if (dismissed && (Date.now() - parseInt(dismissed)) < 7 * 24 * 60 * 60 * 1000) {
+    // Dismissed less than 7 days ago
+    return;
+  }
+
+  // Show prompt after a short delay if it's installable
+  setTimeout(() => {
+    if (isInstallable.value) {
+      showPrompt.value = true;
+    }
+  }, 5000); // 5 second delay
 });
 
 // Watch for installable changes
 watch(isInstallable, (newValue) => {
   console.log('Is installable changed:', newValue);
+  
+  // If becomes installable and no recent dismissal, show prompt
+  if (newValue) {
+    const dismissed = localStorage.getItem('pwa-dismissed');
+    if (!dismissed || (Date.now() - parseInt(dismissed)) >= 7 * 24 * 60 * 60 * 1000) {
+      // Show after small delay to not interrupt immediate user interaction
+      setTimeout(() => {
+        showPrompt.value = true;
+      }, 3000);
+    }
+  }
 });
 
 const install = async () => {
