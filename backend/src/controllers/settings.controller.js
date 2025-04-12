@@ -260,11 +260,27 @@ const updateUserProgress = async (req, res) => {
  */
 const clearUserCache = async (req, res) => {
   try {
-    // In a real implementation, this would clear any server-side caches
-    // For now, it's just a dummy response
+  
+    // Get user ID from authenticated request
+    const userId = req.user.id;
+
+    // Clear any cached settings from memory/cache store
+    // This is where you would clear Redis/Memcached if implemented
     
-    return res.status(200).json({
-      message: 'Cache cleared successfully'
+    // Clear user's local settings in database
+    const settings = await UserSettings.findOne({ userId });
+    if (settings) {
+      // Reset volatile settings to defaults
+      settings.lastSyncTime = null;
+      settings.temporaryPreferences = {};
+      settings.cachedData = {};
+      await settings.save();
+    }
+
+    // Send success response
+    return res.status(200).json({ 
+      message: 'Cache cleared successfully',
+      timestamp: new Date().toISOString()
     });
   } catch (error) {
     console.error('Error clearing cache:', error);
