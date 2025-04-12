@@ -38,6 +38,7 @@ export function usePwa() {
     isInstallable.value = true;
     
     console.log('App is installable, prompt ready');
+    // Don't mark as installed here - this is just the prompt being available
   };
 
   // Handle appinstalled event
