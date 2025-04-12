@@ -51,7 +51,7 @@ onMounted(() => {
 
   // If user previously dismissed, respect that choice
   const dismissed = localStorage.getItem('pwa-dismissed');
-  if (dismissed && (Date.now() - parseInt(dismissed)) < 7 * 24 * 60 * 60 * 1000) {
+  if (dismissed && (Date.now() - parseInt(dismissed)) < 1 * 24 * 60 * 60 * 1000) {
     // Dismissed less than 7 days ago
     return;
   }
@@ -71,7 +71,7 @@ watch(isInstallable, (newValue) => {
   // If becomes installable and no recent dismissal, show prompt
   if (newValue) {
     const dismissed = localStorage.getItem('pwa-dismissed');
-    if (!dismissed || (Date.now() - parseInt(dismissed)) >= 7 * 24 * 60 * 60 * 1000) {
+    if (!dismissed || (Date.now() - parseInt(dismissed)) >= 1 * 24 * 60 * 60 * 1000) {
       // Show after small delay to not interrupt immediate user interaction
       setTimeout(() => {
         showPrompt.value = true;
@@ -96,10 +96,10 @@ const dismiss = () => {
   // Remember the user's preference for 7 days
   localStorage.setItem('pwa-dismissed', Date.now().toString());
   
-  // After 7 days, allow the prompt to be shown again
+  // After 1 day, allow the prompt to be shown again
   setTimeout(() => {
     localStorage.removeItem('pwa-dismissed');
-  }, 7 * 24 * 60 * 60 * 1000);
+  }, 1 * 24 * 60 * 60 * 1000);
 };
 </script>
 
