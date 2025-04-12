@@ -2,8 +2,33 @@ const Expense = require('../models/Expense');
 
 const getExpenses = async (req, res) => {
   try {
-    const expenses = await Expense.find({ user: req.user.userId })
-      .sort({ date: -1 });
+    // Extract query parameters
+    const { startDate, endDate, timeframe, month, year } = req.query;
+    
+    // Create a query filter starting with user ID
+    const filter = { user: req.user.userId };
+    
+    // Add date range filter if both startDate and endDate are provided
+    if (startDate && endDate) {
+      filter.date = {
+        $gte: new Date(startDate),
+        $lte: new Date(endDate)
+      };
+    }
+    // Filter by month and year if provided
+    else if (month !== undefined && year !== undefined) {
+      const startMonth = new Date(parseInt(year), parseInt(month)-1, 1);
+      const endMonth = new Date(parseInt(year), parseInt(month) + 1, 0, 23, 59, 59, 999);
+      
+      filter.date = {
+        $gte: startMonth,
+        $lte: endMonth
+      };
+    }
+    
+    // Query database with the filter
+    const expenses = await Expense.find(filter).sort({ date: -1 });
+    
     res.json(expenses);
   } catch (error) {
     res.status(500).json({ message: 'Error fetching expenses', error });

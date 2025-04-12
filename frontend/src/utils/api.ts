@@ -692,11 +692,39 @@ export const subscriptionApi = {
   }
 };
 
+// Note API
+export const noteApi = {
+  getNotes: () => {
+    return apiClient.get('/notes').then(response => response.data);
+  },
+  
+  getNoteById: (id: string) => {
+    return apiClient.get(`/notes/${id}`).then(response => response.data);
+  },
+  
+  createNote: (note: any) => {
+    return apiClient.post('/notes', note).then(response => response.data);
+  },
+  
+  updateNote: (id: string, note: any) => {
+    return apiClient.put(`/notes/${id}`, note).then(response => response.data);
+  },
+  
+  deleteNote: (id: string) => {
+    return apiClient.delete(`/notes/${id}`).then(response => response.data);
+  },
+  
+  togglePinNote: (id: string) => {
+    return apiClient.patch(`/notes/${id}/toggle-pin`).then(response => response.data);
+  }
+};
+
 export default {
   userApi,
   expenseApi,
   savingsGoalsApi,
   budgetApi,
   settingsApi,
-  subscriptionApi
+  subscriptionApi,
+  noteApi
 }; 

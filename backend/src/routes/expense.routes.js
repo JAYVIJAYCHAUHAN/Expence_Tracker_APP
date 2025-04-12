@@ -27,7 +27,8 @@ router.get('/by-category', getExpensesByCategory);
 // Create a new expense
 router.post('/', createExpense);
 
-// Update an expense
+// Update an expense - support both PUT and PATCH
+router.put('/:id', updateExpense);
 router.patch('/:id', updateExpense);
 
 // Delete an expense

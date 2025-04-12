@@ -29,6 +29,11 @@
             <i class="bi bi-wallet2 nav-icon"></i>
           </el-menu-item>
         </el-tooltip>
+        <el-tooltip content="Notes" placement="bottom" effect="light">
+          <el-menu-item index="/notes" :route="{ name: 'Notes' }" class="nav-item">
+            <i class="bi bi-journal-text nav-icon"></i>
+          </el-menu-item>
+        </el-tooltip>
         <el-tooltip content="Settings" placement="bottom" effect="light">
           <el-menu-item index="/settings" :route="{ name: 'Settings' }" class="nav-item">
             <i class="bi bi-gear nav-icon"></i>
@@ -68,6 +73,10 @@
         <el-menu-item index="/expence" :route="{ name: 'Expence' }" class="sidebar-item">
           <i class="bi bi-wallet2 nav-icon"></i>
           <span>Expense</span>
+        </el-menu-item>
+        <el-menu-item index="/notes" :route="{ name: 'Notes' }" class="sidebar-item">
+          <i class="bi bi-journal-text nav-icon"></i>
+          <span>Notes</span>
         </el-menu-item>
         <el-menu-item index="/settings" :route="{ name: 'Settings' }" class="sidebar-item">
           <i class="bi bi-gear nav-icon"></i>

@@ -46,6 +46,11 @@
             <i class="bi bi-lock"></i>
           </template>
         </el-input>
+        <div class="forgot-password">
+          <router-link to="/forgot-password" @click="updateLoginModal(false)">
+            Forgot password?
+          </router-link>
+        </div>
       </el-form-item>
 
       <el-button 
@@ -206,6 +211,23 @@ function resetForm() {
   color: #666;
   font-size: 1.1rem;
   margin: 0;
+}
+
+.forgot-password {
+  text-align: right;
+  margin-top: 8px;
+  font-size: 0.9rem;
+}
+
+.forgot-password a {
+  color: #00c4cc;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.forgot-password a:hover {
+  color: #7209b7;
+  text-decoration: underline;
 }
 
 .login-form {
