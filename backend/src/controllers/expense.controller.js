@@ -37,6 +37,22 @@ const getExpenses = async (req, res) => {
 
 const createExpense = async (req, res) => {
   try {
+    // Check if this is a demo user request
+    const isDemoUser = req.user.email === 'demo@example.com';
+    
+    if (isDemoUser) {
+      
+      // Manually check expense limit for demo users
+      const Expense = require('../models/Expense');
+      const expenseCount = await Expense.countDocuments({ user: req.user.userId });
+      
+      if (expenseCount >= 4) {
+        return res.status(403).json({
+          message: 'Demo account cannot create more than 4 expenses'
+        });
+      }
+    }
+    
     const expense = new Expense({
       ...req.body,
       user: req.user.userId
@@ -44,7 +60,7 @@ const createExpense = async (req, res) => {
     await expense.save();
     res.status(201).json(expense);
   } catch (error) {
-    res.status(400).json({ message: 'Error creating expense', error });
+    res.status(400).json({ message: 'Error creating expense', error: error.message });
   }
 };
 

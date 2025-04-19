@@ -36,7 +36,6 @@
           <div class="action-buttons">
             
               <el-button type="primary" class="action-btn" @click="handleLogin">Proceed to Login</el-button>
-            
           </div>
         </div>
       </div>
@@ -96,9 +95,19 @@
       </el-form>
       
       <div class="form-footer">
-        <div  @click="handleLogin">Back to Login</div>
+        <!-- <div  @click="handleLogin">Back to Login</div> -->
+        <el-button 
+            link 
+            type="primary" 
+            @click="handleLogin"
+            class="login-btn"
+            style="margin-bottom: 5px;"
+          >
+          Back to Login
+          </el-button>
       </div>
     </el-card>
+    <Login :isLoginModelOpen="isLoginModalVisible" @update:model-value="isLoginModalVisible = $event" @login-success="handleLoginSuccess"/>
   </div>
 </template>
 
@@ -108,6 +117,7 @@ import { useRouter, useRoute } from 'vue-router';
 import { ElMessage, FormInstance } from 'element-plus';
 import axios from 'axios';
 import { useLoginModal } from '@/composables/useLoginModal';
+import Login from './Login.vue';
 
 // Constants
 const API_URL = import.meta.env.VITE_API_URL;
@@ -116,14 +126,7 @@ const API_URL = import.meta.env.VITE_API_URL;
 const router = useRouter();
 const route = useRoute();
 
-// Define the type for the login modal
-type LoginModal = ReturnType<typeof useLoginModal>;
-
- 
-// First try to use the globally provided login modal (preferred)
-const injectedLoginModal = inject<LoginModal>('loginModal');
-// Fallback to local instance if not provided
-const loginModal = injectedLoginModal || useLoginModal();
+const isLoginModalVisible= ref(false)
 
 // Form
 const resetFormRef = ref<FormInstance>();
@@ -232,8 +235,13 @@ const handleSubmit = async () => {
   });
 };
 function handleLogin(){
-  loginModal.openLoginModal;
+  isLoginModalVisible.value=true;
 }
+
+const handleLoginSuccess = () => {
+  ElMessage.success('Login successful');
+  router.push('/dashboard');
+};
 </script>
 
 <style scoped>

@@ -112,6 +112,8 @@
           :key="activity._id"
           :timestamp="formatDate(activity.date)"
           :type="getActivityType(activity.category)"
+          color="info"
+
         >
           <div class="activity-content">
             <h4>{{ activity.description }}</h4>
@@ -435,28 +437,32 @@ const formatDate = (dateStr: string) => {
 
 const getCategoryType = (category: string) => {
   const types: { [key: string]: string } = {
-    'Groceries': 'success',
-    'Transportation': 'warning',
-    'Entertainment': 'info',
-    'Utilities': 'danger',
-    'Shopping': 'primary',
-    'Bills': 'warning',
-    'Others': 'info'
+    'transportation': 'warning',
+    'entertainment': 'info',
+    'utilities': 'danger',
+    'shopping': 'primary',
+    'bills': 'warning',
+    'food': 'success',
+    'health': 'danger',
+    'education': 'info',
+    'others': 'danger'
   };
-  return types[category] || 'info';
+  return types[category] || 'success';
 };
 
 const getActivityType = (category: string) => {
   const types: { [key: string]: string } = {
-    'Groceries': 'success',
-    'Transportation': 'warning',
-    'Entertainment': 'info',
-    'Utilities': 'danger',
-    'Shopping': 'primary',
-    'Bills': 'warning',
-    'Others': 'info'
+    'transportation': 'warning',
+    'entertainment': 'info',
+    'utilities': 'danger',
+    'shopping': 'primary',
+    'bills': 'warning',
+    'food': 'success',
+    'health': 'success',
+    'education': 'info',
+    'others': 'danger'
   };
-  return types[category] || 'info';
+  return types[category] || 'success';
 };
 
 // Calculate total savings and progress
