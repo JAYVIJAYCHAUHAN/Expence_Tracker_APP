@@ -40,8 +40,20 @@
         </el-form-item>
         
         <div class="form-footer">
-          <router-link to="/login">Back to Login</router-link>
+          <!-- <router-link to="/login">Back to Login</router-link> -->
+          <!-- <div  @click="handleLogin">Back to Login</div> -->
+          <el-button 
+            link 
+            type="primary" 
+            @click="handleLogin"
+            class="login-btn"
+            style="margin-bottom: 5px;"
+          >
+          Back to Login
+          </el-button>
         </div>
+    <Login :isLoginModelOpen="isLoginModalVisible" @update:model-value="isLoginModalVisible = $event" @login-success="handleLoginSuccess" />
+       
       </el-form>
       
       <div v-else class="email-simulation">
@@ -95,6 +107,7 @@ import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { ElMessage, FormInstance } from 'element-plus';
 import axios from 'axios';
+import Login from './Login.vue';
 
 // Constants
 const API_URL = import.meta.env.VITE_API_URL;
@@ -114,7 +127,7 @@ const resetForm = ref({
 // State
 const isSubmitting = ref(false);
 const resetRequested = ref(false);
-
+const isLoginModalVisible = ref(false)
 // Computed
 const resetLink = computed(() => {
   return `${APP_URL}/reset-password/${resetForm.value.userId}/${resetForm.value.token}`;
@@ -154,6 +167,13 @@ const handleSubmit = async () => {
       }
     }
   });
+};
+function handleLogin(){
+  isLoginModalVisible.value=true;
+}
+const handleLoginSuccess = () => {
+  ElMessage.success('Login successful');
+  router.push('/dashboard');
 };
 </script>
 

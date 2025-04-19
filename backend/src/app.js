@@ -4,6 +4,7 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const { setupDemoData } = require('./scripts/setupDemoData');
 const demoRestrictions = require('./middleware/demoRestrictions');
+const jwt = require('jsonwebtoken');
 
 // Routes
 const authRoutes = require('./routes/auth.routes');
@@ -27,6 +28,28 @@ app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
+// Global middleware to check if the request has a user 
+// (needed for demo restrictions to work properly)
+app.use((req, res, next) => {
+  const authHeader = req.headers.authorization;
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    try {
+      const token = authHeader.split(' ')[1];
+      const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-default-jwt-secret');
+      // Just set basic user info for demo restrictions to check later
+      if (decoded && decoded.userId) {
+        req.user = decoded;
+      }
+    } catch (error) {
+      // Silently continue - auth middleware will handle token validation properly
+    }
+  }
+  next();
+});
+
+// Apply demo restrictions globally
+app.use(demoRestrictions);
+
 // Stats route
 app.use('/api/stats', statsRoutes);
 
@@ -35,9 +58,6 @@ app.use('/api/stats', statsRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/subscriptions', subscriptionRoutes);
-
-// Apply demo restrictions after public routes
-app.use(demoRestrictions);
 
 // Protected routes
 app.use('/api/expenses', expenseRoutes);

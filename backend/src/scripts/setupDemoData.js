@@ -1,5 +1,7 @@
 const User = require('../models/User');
 const Expense = require('../models/Expense');
+const Note=require('../models/Note')
+const SavingsGoal=require('../models/SavingsGoal')
 
 const setupDemoData = async () => {
   try {
@@ -47,6 +49,27 @@ const setupDemoData = async () => {
     ];
 
     await Expense.insertMany(expenses);
+    // notes hard coded data for demo
+    await Note.deleteMany({ user: demoUser._id });
+    const notes=[
+      {
+        title: "New Notes",
+        content:"Demo User",
+        color:"#DF1414",
+         isPinned:false,
+        tags:["Demo"],
+        user: demoUser._id,
+      },
+        {
+          title: "No ways",
+          content:"Let's try App",
+          color:"#05E645",
+          isPinned:false,
+         tags:["Demo"],
+         user: demoUser._id,
+        }
+    ];
+    await Note.insertMany(notes);
     console.log('Demo data setup complete');
   } catch (error) {
     console.error('Error setting up demo data:', error);

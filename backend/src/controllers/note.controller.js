@@ -32,15 +32,39 @@ const getNoteById = async (req, res) => {
 // Create a new note
 const createNote = async (req, res) => {
   try {
+    // Check if this is a demo user request
+    const isDemoUser = req.user.email === 'demo@example.com';
+    
+    if (isDemoUser) {
+      console.log('Demo user attempting to create note');
+      
+      // Manually check note limit for demo users
+      const noteCount = await Note.countDocuments({ user: req.user.userId });
+      console.log(`Demo user current note count: ${noteCount}`);
+      
+      if (noteCount >= 3) {
+        console.log('Demo user exceeded note limit - rejected from controller');
+        return res.status(403).json({
+          message: 'Demo account cannot create more than 3 notes'
+        });
+      }
+    }
+    
     const note = new Note({
       ...req.body,
       user: req.user.userId
     });
     
+    console.log(`Creating note for user: ${req.user.email} (${req.user.userId})`);
+    console.log('Note data:', JSON.stringify(req.body));
+    
     await note.save();
+    
+    console.log('Note created successfully');
     res.status(201).json(note);
   } catch (error) {
-    res.status(400).json({ message: 'Error creating note', error });
+    console.error('Error creating note:', error);
+    res.status(400).json({ message: 'Error creating note', error: error.message });
   }
 };
 

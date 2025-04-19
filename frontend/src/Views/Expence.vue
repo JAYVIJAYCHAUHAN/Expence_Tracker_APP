@@ -207,11 +207,12 @@
       <div class="pagination-container">
         <el-pagination
           v-model:current-page="currentPage"
-          v-model:page-size="pageSize"
+          :page-size="pageSize"
           :total="totalExpenses"
-          :page-sizes="[10, 20, 50, 100]"
-          layout="total, sizes, prev, pager, next"
-          @size-change="handleSizeChange"
+          layout="total, prev, pager, next"
+          pager-count="4"
+          size="small"
+          background
           @current-change="handleCurrentChange"
           class="pagination-container"
         />
@@ -307,8 +308,12 @@ const filteredExpenses = computed(() => {
       expense.category === filterCategory.value
     );
   }
-  
-  return filtered;
+  totalExpenses.value = filtered.length; // important for pagination
+
+  const start = (currentPage.value - 1) * pageSize.value;
+  const end = start + pageSize.value;
+
+  return filtered.slice(start, end);
 });
 
 // Methods
@@ -432,10 +437,10 @@ const resetForm = () => {
   isEditing.value = false;
 };
 
-const handleSizeChange = (val: number) => {
-  pageSize.value = val;
-  currentPage.value = 1;
-};
+// const handleSizeChange = (val: number) => {
+//   pageSize.value = val;
+//   currentPage.value = 1;
+// };
 
 const handleCurrentChange = (val: number) => {
   currentPage.value = val;
@@ -470,9 +475,9 @@ const getCategoryType = (category: string) => {
     'shopping': 'primary',
     'bills': 'warning',
     'food': 'success',
-    'health': 'danger',
+    'health': 'success',
     'education': 'info',
-    'others': 'info'
+    'others': 'danger'
   };
   return types[category] || 'primary';
 };
@@ -482,7 +487,7 @@ const getPaymentType = (method: string) => {
     'cash': 'success',
     'card': 'primary',
     'upi': 'warning',
-    'other': 'info'
+    'other': 'danger'
   };
   return types[method] || 'primary';
 };
