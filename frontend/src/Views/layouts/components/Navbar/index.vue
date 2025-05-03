@@ -29,6 +29,7 @@
             <i class="bi bi-wallet2 nav-icon"></i>
           </el-menu-item>
         </el-tooltip>
+        <!-- Notes and Settings menu items are kept at the same level as other menu items -->
         <el-tooltip content="Notes" placement="bottom" effect="light">
           <el-menu-item index="/notes" :route="{ name: 'Notes' }" class="nav-item">
             <i class="bi bi-journal-text nav-icon"></i>

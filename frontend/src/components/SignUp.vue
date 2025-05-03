@@ -75,13 +75,14 @@
       </el-form>
     </div>
   </div>
-  <Login :isLoginModelOpen="isLoginModalVisible" @update:model-value="isLoginModalVisible = $event" />
+  <Login :isLoginModelOpen="isLoginModalVisible" @update:model-value="isLoginModalVisible = $event"@login-success="handleLoginSuccess" />
 </template>
 
 <script setup lang="ts">
 import { ref } from "vue";
 import { ElMessage } from 'element-plus';
 import Login from "./Login.vue";
+import router from "@/router";
 const API_URL =  import.meta.env.VITE_API_URL;
 
 const isSubmitting = ref(false);
@@ -164,6 +165,11 @@ async function handleSubmit() {
 
 function openLoginModal() {
   isLoginModalVisible.value = true;
+}
+
+function handleLoginSuccess() {
+  ElMessage.success('Login successful');
+  router.push('/dashboard');
 }
 </script>
 
