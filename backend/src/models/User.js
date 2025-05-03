@@ -86,7 +86,8 @@ UserSchema.methods.generateAuthToken = async function() {
     { expiresIn: '1h' }
   );
   
-  user.tokens = user.tokens.concat({ token });
+  // Replace the whole array with just one token
+  user.tokens = [{ token }];
   await user.save();
   return token;
 };
