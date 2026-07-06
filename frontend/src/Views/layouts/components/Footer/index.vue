@@ -6,7 +6,15 @@
         <div class="company-info">
           <img src="@/assets/images/new_logo.jpeg" alt="Expense Tracker" class="footer-logo" />
           <h3 class="company-name">Expense Tracker</h3>
-           <p class="company-description">With ❤️ from Kharka</p>
+         <p class="company-description">
+  Built with ❤️ from Kharka, Basti, Uttar Pradesh
+</p>
+          <p class="company-description">
+  Designed & Developed by <strong>Jayvijay Chauhan</strong><br>
+  Software Engineer<br>
+  B.Tech in Computer Science Engineering, NIT Hamirpur<br>
+  📍 Basti, Uttar Pradesh, India
+</p>
           <p class="company-description">
             Simplify your financial journey with our intuitive expense tracking solution.
           </p>
