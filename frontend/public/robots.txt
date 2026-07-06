@@ -1,4 +1,5 @@
 User-agent: *
+
 Allow: /
 
-Sitemap: https://expenselog.vercel.app/sitemap.xml 
+Sitemap: https://expenselog.vercel.app/sitemap.xml
